@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kevin.mapper.AnswerSheetMapper">
+
+    <resultMap id="BaseResultMap" type="com.kevin.entity.AnswerSheet">
+            <id property="id" column="id" />
+            <result property="questionnaire_id" column="questionnaire_id" />
+            <result property="user_id" column="user_id" />
+            <result property="submit_time" column="submit_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,questionnaire_id,user_id,submit_time
+    </sql>
+</mapper>
