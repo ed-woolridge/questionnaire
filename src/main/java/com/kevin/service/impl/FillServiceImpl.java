@@ -42,11 +42,13 @@ public class FillServiceImpl implements FillService {
 
     @Override
     public void saveAnswerSheet(AnswerSheetDTO dto) {
+
         // 1. 保存答卷主表
         AnswerSheet sheet = new AnswerSheet();
         sheet.setQuestionnaireId(dto.getQuestionnaireId());
         sheet.setSubmitTime(new Date());
         answerSheetMapper.insert(sheet);
+
         // 2. 保存每个答案
         for (AnswerDTO ans : dto.getAnswers()) {
             Object value = ans.getAnswer();
@@ -55,6 +57,19 @@ public class FillServiceImpl implements FillService {
             if (value instanceof String && ((String) value).trim().isEmpty()) continue;
             if (value instanceof java.util.List && ((java.util.List<?>) value).isEmpty()) continue;
             String type = questionService.getTypeById(ans.getQuestionId());
+
+            // 针对游览城市题目（假设questionId为37），合并为逗号分隔字符串
+            if (ans.getQuestionId() == 27L && value instanceof java.util.List<?>) {
+                java.util.List<?> list = (java.util.List<?>) value;
+                String cityStr = list.stream().map(Object::toString).collect(java.util.stream.Collectors.joining(","));
+                Answer answer = new Answer();
+                answer.setAnswerSheetId(sheet.getId());
+                answer.setQuestionId(ans.getQuestionId());
+                answer.setTextAnswer(cityStr);
+                answerMapper.insert(answer);
+                continue;
+            }
+
             if ("SINGLE_CHOICE".equals(type)) {
                 // 单选题，answer为字符串或数字
                 Answer answer = new Answer();

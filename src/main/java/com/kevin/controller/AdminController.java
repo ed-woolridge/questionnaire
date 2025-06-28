@@ -1,14 +1,29 @@
 package com.kevin.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.kevin.common.Result;
 import com.kevin.entity.Admin;
+import com.kevin.entity.Answer;
+import com.kevin.entity.AnswerSheet;
+import com.kevin.entity.Question;
+import com.kevin.entity.QuestionOption;
 import com.kevin.service.AdminService;
+import com.kevin.service.AnswerService;
+import com.kevin.service.AnswerSheetService;
+import com.kevin.service.QuestionService;
+import com.kevin.service.QuestionOptionService;
 import com.kevin.vo.LoginVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 管理员控制器
@@ -21,6 +36,17 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
+    @Autowired
+    private AnswerSheetService answerSheetService;
+
+    @Autowired
+    private AnswerService answerService;
+
+    @Autowired
+    private QuestionService questionService;
+
+    @Autowired
+    private QuestionOptionService questionOptionService;
 
     /**
      * 管理员登录
@@ -77,6 +103,211 @@ public class AdminController {
             }
         } catch (Exception e) {
             return Result.error("密码修改失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 分页查询用户提交的问卷
+     */
+    @GetMapping("/answerSheets")
+    @Operation(summary = "查询用户提交的问卷", description = "分页查询用户提交的问卷列表")
+    public Result getAnswerSheets(
+            @Parameter(description = "页码", required = true) @RequestParam(defaultValue = "1") Integer page,
+            @Parameter(description = "每页大小", required = true) @RequestParam(defaultValue = "10") Integer size,
+            @Parameter(description = "问卷ID") @RequestParam(required = false) Long questionnaireId,
+            @Parameter(description = "状态") @RequestParam(required = false) String status,
+            @Parameter(description = "开始时间") @RequestParam(required = false) String startTime,
+            @Parameter(description = "结束时间") @RequestParam(required = false) String endTime) {
+        try {
+            Page<AnswerSheet> pageParam = new Page<>(page, size);
+            QueryWrapper<AnswerSheet> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("is_deleted", 0);
+            
+            if (questionnaireId != null) {
+                queryWrapper.eq("questionnaire_id", questionnaireId);
+            }
+            if (status != null && !status.isEmpty()) {
+                queryWrapper.eq("status", status);
+            }
+            if (startTime != null && !startTime.isEmpty()) {
+                queryWrapper.ge("submit_time", startTime);
+            }
+            if (endTime != null && !endTime.isEmpty()) {
+                queryWrapper.le("submit_time", endTime);
+            }
+            
+            queryWrapper.orderByDesc("submit_time");
+            
+            Page<AnswerSheet> result = answerSheetService.page(pageParam, queryWrapper);
+            return Result.success(result);
+        } catch (Exception e) {
+            return Result.error("查询失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 查看问卷详情
+     */
+    @GetMapping("/answerSheets/{id}")
+    @Operation(summary = "查看问卷详情", description = "查看指定问卷的详细答案")
+    public Result getAnswerSheetDetail(
+            @Parameter(description = "答卷ID", required = true) @PathVariable Long id) {
+        try {
+            // 获取答卷信息
+            AnswerSheet answerSheet = answerSheetService.getById(id);
+            if (answerSheet == null) {
+                return Result.error("答卷不存在");
+            }
+            
+            // 获取答案列表
+            QueryWrapper<Answer> answerQuery = new QueryWrapper<>();
+            answerQuery.eq("answer_sheet_id", id);
+            List<Answer> answers = answerService.list(answerQuery);
+            
+            // 获取问题信息并组装答案
+            Map<String, Object> result = new HashMap<>();
+            result.put("answerSheet", answerSheet);
+            
+            List<Map<String, Object>> answerDetails = answers.stream().map(answer -> {
+                Map<String, Object> detail = new HashMap<>();
+                // 获取问题信息
+                Question question = questionService.getById(answer.getQuestionId());
+                detail.put("questionTitle", question != null ? question.getContent() : "");
+                // 选项内容
+                String answerContent = null;
+                if (answer.getOptionId() != null) {
+                    // 通过选项ID查找选项内容
+                    QuestionOption option = questionOptionService.getById(answer.getOptionId());
+                    answerContent = option != null ? option.getContent() : (answer.getOptionId() + "");
+                } else if (answer.getTextAnswer() != null) {
+                    answerContent = answer.getTextAnswer();
+                } else if (answer.getNumberAnswer() != null) {
+                    answerContent = answer.getNumberAnswer().toString();
+                } else {
+                    answerContent = "";
+                }
+                detail.put("answerContent", answerContent);
+                return detail;
+            }).collect(Collectors.toList());
+            
+            result.put("answers", answerDetails);
+            
+            return Result.success(result);
+        } catch (Exception e) {
+            return Result.error("查询失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 删除问卷
+     */
+    @DeleteMapping("/answerSheets/{id}")
+    @Operation(summary = "删除问卷", description = "删除指定的问卷（软删除）")
+    public Result deleteAnswerSheet(
+            @Parameter(description = "答卷ID", required = true) @PathVariable Long id) {
+        try {
+            AnswerSheet answerSheet = answerSheetService.getById(id);
+            if (answerSheet == null) {
+                return Result.error("答卷不存在");
+            }
+            
+            // 软删除答卷
+            answerSheet.setIsDeleted(1);
+            answerSheetService.updateById(answerSheet);
+            
+            // 软删除相关答案
+            QueryWrapper<Answer> answerQuery = new QueryWrapper<>();
+            answerQuery.eq("answer_sheet_id", id);
+            List<Answer> answers = answerService.list(answerQuery);
+            
+            for (Answer answer : answers) {
+                answer.setIsDeleted(1);
+                answerService.updateById(answer);
+            }
+            
+            return Result.success("删除成功");
+        } catch (Exception e) {
+            return Result.error("删除失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 批量删除问卷
+     */
+    @DeleteMapping("/answerSheets/batch")
+    @Operation(summary = "批量删除问卷", description = "批量删除指定的问卷")
+    public Result batchDeleteAnswerSheets(
+            @Parameter(description = "答卷ID列表", required = true) @RequestBody List<Long> ids) {
+        try {
+            for (Long id : ids) {
+                AnswerSheet answerSheet = answerSheetService.getById(id);
+                if (answerSheet != null) {
+                    // 软删除答卷
+                    answerSheet.setIsDeleted(1);
+                    answerSheetService.updateById(answerSheet);
+                    
+                    // 软删除相关答案
+                    QueryWrapper<Answer> answerQuery = new QueryWrapper<>();
+                    answerQuery.eq("answer_sheet_id", id);
+                    List<Answer> answers = answerService.list(answerQuery);
+                    
+                    for (Answer answer : answers) {
+                        answer.setIsDeleted(1);
+                        answerService.updateById(answer);
+                    }
+                }
+            }
+            
+            return Result.success("批量删除成功");
+        } catch (Exception e) {
+            return Result.error("批量删除失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取问卷统计信息
+     */
+    @GetMapping("/answerSheets/stats")
+    @Operation(summary = "获取问卷统计信息", description = "获取问卷提交的统计信息")
+    public Result getAnswerSheetStats(
+            @Parameter(description = "问卷ID") @RequestParam(required = false) Long questionnaireId) {
+        try {
+            QueryWrapper<AnswerSheet> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("is_deleted", 0);
+            
+            if (questionnaireId != null) {
+                queryWrapper.eq("questionnaire_id", questionnaireId);
+            }
+            
+            // 总提交数
+            long totalCount = answerSheetService.count(queryWrapper);
+            
+            // 今日提交数
+            QueryWrapper<AnswerSheet> todayQuery = new QueryWrapper<>();
+            todayQuery.eq("is_deleted", 0);
+            if (questionnaireId != null) {
+                todayQuery.eq("questionnaire_id", questionnaireId);
+            }
+            todayQuery.ge("submit_time", java.time.LocalDate.now().toString());
+            long todayCount = answerSheetService.count(todayQuery);
+            
+            // 已完成数
+            QueryWrapper<AnswerSheet> completedQuery = new QueryWrapper<>();
+            completedQuery.eq("is_deleted", 0);
+            completedQuery.eq("status", "COMPLETED");
+            if (questionnaireId != null) {
+                completedQuery.eq("questionnaire_id", questionnaireId);
+            }
+            long completedCount = answerSheetService.count(completedQuery);
+            
+            Map<String, Object> stats = new HashMap<>();
+            stats.put("totalCount", totalCount);
+            stats.put("todayCount", todayCount);
+            stats.put("completedCount", completedCount);
+            
+            return Result.success(stats);
+        } catch (Exception e) {
+            return Result.error("获取统计信息失败：" + e.getMessage());
         }
     }
 } 

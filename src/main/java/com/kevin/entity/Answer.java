@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
+
 import lombok.Data;
 
 /**
@@ -50,7 +52,13 @@ public class Answer implements Serializable {
      * 
      */
     @TableField(value = "number_answer")
-    private java.math.BigDecimal numberAnswer;
+    private BigDecimal numberAnswer;
+
+    /**
+     * 是否删除：0-未删除，1-已删除
+     */
+    @TableField(value = "is_deleted")
+    private Integer isDeleted;
 
     @Serial
     @TableField(exist = false)

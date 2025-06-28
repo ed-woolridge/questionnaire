@@ -1,31 +1,30 @@
 package com.kevin.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 /**
  * 
- * @TableName option
+ * @TableName question_option
  */
-@TableName(value ="option")
+@TableName(value ="question_option")
 @Data
-public class Option {
+public class QuestionOption {
     /**
-     * 
+     * 主键ID
      */
     @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
-     * 
+     * 问题ID
      */
     private Long questionId;
 
     /**
-     * 
+     * 问题选项
      */
     private String content;
 }

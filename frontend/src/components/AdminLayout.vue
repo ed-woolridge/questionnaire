@@ -8,9 +8,9 @@
             <el-icon><Document /></el-icon>
             <template #title>问卷管理</template>
           </el-menu-item>
-          <el-menu-item index="/admin/export">
-            <el-icon><Download /></el-icon>
-            <template #title>数据导出</template>
+          <el-menu-item index="/admin/answer-sheets">
+            <el-icon><List /></el-icon>
+            <template #title>提交管理</template>
           </el-menu-item>
         </el-menu>
         <div class="collapse-btn" @click="collapsed = !collapsed">
@@ -37,7 +37,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Document, Download, Fold, Expand, UserFilled } from '@element-plus/icons-vue'
+import { Document, Download, Fold, Expand, UserFilled, List } from '@element-plus/icons-vue'
 const router = useRouter()
 const collapsed = ref(false)
 const username = computed(() => {

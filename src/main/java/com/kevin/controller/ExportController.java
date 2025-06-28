@@ -16,11 +16,17 @@ public class ExportController {
     @Autowired
     private ExportService exportService;
 
-    @GetMapping("/admin/questionnaire/{id}/export")
+    @GetMapping("/admin/questionnaire/export/{id}")
     @Operation(summary = "导出问卷数据", description = "将指定问卷的填写数据导出为Excel文件")
     public void export(
             @Parameter(description = "问卷ID", required = true) @PathVariable Long id,
             HttpServletResponse response) {
         exportService.exportToExcel(id, response);
+    }
+
+    @GetMapping("/admin/answers/export")
+    @Operation(summary = "导出所有答卷", description = "导出所有用户答卷为Excel，按用户名和题目列展示")
+    public void exportAnswers(HttpServletResponse response) {
+        exportService.exportAnswersToExcel(response);
     }
 }
