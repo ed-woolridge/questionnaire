@@ -1,4 +1,6 @@
+
 CREATE DATABASE  `questionnaire`;
+use questionnaire;
 -- ----------------------------
 -- Chat2DB export data , export time: 2025-07-01 10:26:19
 -- ----------------------------

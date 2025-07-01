@@ -4,7 +4,11 @@
       <el-aside :width="collapsed ? '64px' : '210px'" class="sidebar" :class="{ collapsed }">
         <div class="sidebar-inner">
           <div class="logo" v-if="!collapsed">问卷后台</div>
-          <el-menu :default-active="$route.path" router class="menu" :collapse="collapsed">
+          <el-menu :default-active="$route.path" router class="menu" :collapse="collapsed"
+            background-color="#22304a"
+            text-color="#fff"
+            active-text-color="#409eff"
+          >
             <el-menu-item index="/admin/questionnaires">
               <el-icon><Document /></el-icon>
               <template #title>问卷管理</template>
@@ -16,12 +20,12 @@
             </el-menu-item>
 
             <el-menu-item index="/admin/stats">
-              <el-icon><Data /></el-icon>
+              <el-icon><DataAnalysis /></el-icon>
               <template #title>统计分析</template>
             </el-menu-item>
 
             <el-menu-item index="/admin/questions">
-              <el-icon><Document /></el-icon>
+              <el-icon><Management /></el-icon>
               <template #title>问题管理</template>
             </el-menu-item>
           </el-menu>
@@ -38,9 +42,9 @@
           </div>
           <div class="header-title">地方接待国内游客抽样调查问卷管理系统</div>
           <div class="user-info">
-            <el-icon style="margin-right:6px;"><UserFilled /></el-icon>
+            <el-icon style="margin-right:10px;"><UserFilled /></el-icon>
             <span class="username">{{ username }}</span>
-            <el-button type="text" @click="logout">退出登录</el-button>
+            <span class="username" @click="logout" style="cursor: pointer;">退出登录</span>
           </div>
         </el-header>
         <el-main class="main">
@@ -54,7 +58,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Document, Download, Fold, Expand, UserFilled, List } from '@element-plus/icons-vue'
+import { Document, Fold, Expand, UserFilled, List, DataAnalysis, Management } from '@element-plus/icons-vue'
 const router = useRouter()
 const collapsed = ref(false)
 const username = computed(() => {
@@ -79,7 +83,7 @@ function logout() {
   background: linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%);
 }
 .sidebar {
-  background: #fff;
+  background: #22304a;
   box-shadow: 2px 0 8px #0001;
   min-height: 100vh;
   padding-top: 0;
@@ -88,6 +92,7 @@ function logout() {
   display: flex;
   flex-direction: column;
   align-items: center;
+  color: #fff;
 }
 .sidebar-inner {
   width: 100%;
@@ -98,7 +103,7 @@ function logout() {
 .logo {
   font-size: 22px;
   font-weight: bold;
-  color: #409eff;
+  color: #fff;
   text-align: center;
   margin: 24px 0 16px 0;
   letter-spacing: 2px;
@@ -116,13 +121,14 @@ function logout() {
   align-items: center;
 }
 .header {
-  background: #fff;
+  background: #409eff;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 32px;
   box-shadow: 0 2px 8px #0001;
   height: 64px;
+  color: #fff;
 }
 .header-left {
   display: flex;
@@ -132,30 +138,31 @@ function logout() {
 .logo-header {
   font-size: 20px;
   font-weight: bold;
-  color: #409eff;
+  color: #fff;
   letter-spacing: 2px;
   margin-left: 4px;
 }
 .collapse-btn {
   font-size: 22px;
-  color: #409eff;
+  color: #fff;
   cursor: pointer;
   transition: color 0.2s;
 }
 .collapse-btn:hover {
-  color: #66b1ff;
+  color: #e0e7ef;
 }
 .header-title {
   font-size: 18px;
   font-weight: 500;
-  color: #333;
+  color: #fff;
 }
 .user-info {
   display: flex;
   align-items: center;
   font-size: 15px;
-  color: #666;
+  color: #fff;
 }
+
 .username {
   margin-right: 16px;
   font-weight: 500;
@@ -165,5 +172,18 @@ function logout() {
   padding: 2px 2px 2px 2px;
   background: transparent;
   min-height: 600px;
+}
+:deep(.el-menu) {
+  background-color: #22304a !important;
+}
+:deep(.el-menu-item) {
+  color: #fff !important;
+}
+:deep(.el-menu-item.is-active) {
+  background-color: #162032 !important;
+  color: #409eff !important;
+}
+:deep(.el-menu-item:hover) {
+  background-color: #2d3a4b !important;
 }
 </style> 

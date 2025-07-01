@@ -126,8 +126,7 @@
               </el-checkbox-group>
             </el-form-item>
 
-            <div class="section-title">花费情况</div>
-            <el-form-item label="您计划在本市游览___天，今天是您来本市的第___天。" required>
+            <el-form-item label="10.您计划在本市游览___天，今天是您来本市的第___天。" required>
               <div class="input-single-row">
                 <span class="input-label">计划天数</span>
                 <el-input v-model="form.planDays"  placeholder="计划天数" style="width: 180px;" @input="validateNumber" />
@@ -479,12 +478,7 @@ const handleCityCountChange = (e) => {
   text-align: center;
   margin-bottom: 18px;
 }
-.section-title {
-  font-size: 18px;
-  font-weight: bold;
-  margin: 24px 0 12px 0;
-  color: #409eff;
-}
+
 .el-form-item {
   margin-bottom: 22px;
 }
