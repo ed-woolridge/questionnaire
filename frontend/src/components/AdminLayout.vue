@@ -9,9 +9,20 @@
               <el-icon><Document /></el-icon>
               <template #title>问卷管理</template>
             </el-menu-item>
+
             <el-menu-item index="/admin/answer-sheets">
               <el-icon><List /></el-icon>
               <template #title>提交管理</template>
+            </el-menu-item>
+
+            <el-menu-item index="/admin/stats">
+              <el-icon><Data /></el-icon>
+              <template #title>统计分析</template>
+            </el-menu-item>
+
+            <el-menu-item index="/admin/questions">
+              <el-icon><Document /></el-icon>
+              <template #title>问题管理</template>
             </el-menu-item>
           </el-menu>
         </div>
@@ -150,7 +161,7 @@ function logout() {
   font-weight: 500;
 }
 .main {
-  /* 上右下坐 */
+  /* 上右下左 */
   padding: 2px 2px 2px 2px;
   background: transparent;
   min-height: 600px;

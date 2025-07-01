@@ -17,20 +17,20 @@
           <div class="section-title">筛选题</div>
           <el-form-item label="1. 您本次出游的时间，是否在6小时以上" required>
             <el-radio-group v-model="form.q1" class="radio-group-single">
-              <el-radio label="A">A.是</el-radio>
-              <el-radio label="B">B.否（如选"否"，请终止调查）</el-radio>
+              <el-radio value="A">A.是</el-radio>
+              <el-radio value="B">B.否（如选"否"，请终止调查）</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="2. 您本次游览的地点，离您日常居住（生活）以及工作（上学）的社区（村庄），距离是否在10公里以上" required>
             <el-radio-group v-model="form.q2" class="radio-group-single">
-              <el-radio label="A">A.是</el-radio>
-              <el-radio label="B">B.否（如选"否"，请终止调查）</el-radio>
+              <el-radio value="A">A.是</el-radio>
+              <el-radio value="B">B.否（如选"否"，请终止调查）</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-form-item label="3. 您本次出游过程中，是否已经在我市其他县（区、市）或景区（点）等区域参与了本项调查" required>
             <el-radio-group v-model="form.q3" class="radio-group-single">
-              <el-radio label="A">A.是（如选"是"，请终止调查）</el-radio>
-              <el-radio label="B">B.否</el-radio>
+              <el-radio value="A">A.是（如选"是"，请终止调查）</el-radio>
+              <el-radio value="B">B.否</el-radio>
             </el-radio-group>
           </el-form-item>
           <el-alert v-if="shouldTerminate" type="warning" title="您不符合本次调查条件，感谢您的参与！" show-icon style="margin-bottom: 20px;" />
@@ -42,28 +42,28 @@
             </el-form-item>
             <el-form-item label="2. 您的性别是：" required>
               <el-radio-group v-model="form.gender" class="radio-group-single">
-                <el-radio v-for="opt in options.gender" :key="opt.id" :label="opt.id">
+                <el-radio v-for="opt in options.gender" :key="opt.id" :value="opt.id">
                   {{ opt.content }}
                 </el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="3. 您的年龄：" required>
               <el-radio-group v-model="form.age" class="radio-group-single">
-                <el-radio v-for="opt in options.age" :key="opt.id" :label="opt.id">
+                <el-radio v-for="opt in options.age" :key="opt.id" :value="opt.id">
                   {{ opt.content }}
                 </el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="4. 您日常居住生活的地方是：" required>
               <el-radio-group v-model="form.residence" class="radio-group-single">
-                <el-radio v-for="opt in options.residence" :key="opt.id" :label="opt.id">
+                <el-radio v-for="opt in options.residence" :key="opt.id" :value="opt.id">
                   {{ opt.content }}
                 </el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="5. 您本次出游，主要目的是（单选）：" required>
               <el-radio-group v-model="form.purpose" class="radio-group-single">
-                <el-radio v-for="opt in options.purpose" :key="opt.id" :label="opt.id">
+                <el-radio v-for="opt in options.purpose" :key="opt.id" :value="opt.id">
                   {{ opt.content }}
                 </el-radio>
               </el-radio-group>
@@ -81,7 +81,7 @@
             </el-form-item>
             <el-form-item label="6. 您本次出游，是否住宿过夜：" required>
               <el-radio-group v-model="form.stayOvernight" class="radio-group-single">
-                <el-radio v-for="opt in options.stayOvernight" :key="opt.id" :label="opt.id">
+                <el-radio v-for="opt in options.stayOvernight" :key="opt.id" :value="opt.id">
                   {{ opt.content }}
                 </el-radio>
               </el-radio-group>
@@ -94,7 +94,7 @@
               </el-form-item>
               <el-form-item label="主要选择的住宿设施（住宿时间最长）是（单选）" required>
                 <el-radio-group v-model="form.accommodation" class="radio-group-single">
-                  <el-radio v-for="opt in options.accommodation" :key="opt.id" :label="opt.id">
+                  <el-radio v-for="opt in options.accommodation" :key="opt.id" :value="opt.id">
                   {{ opt.content }}
                 </el-radio>
                 </el-radio-group>
@@ -103,7 +103,7 @@
 
             <el-form-item label="7. 您本次出游，在我市游览的旅游景区（景点）类型有（可多选）：" required>
               <el-checkbox-group v-model="form.scenicTypes" class="checkbox-group-single">
-                <el-checkbox v-for="opt in options.scenicTypes" :key="opt.id" :label="opt.id">
+                <el-checkbox v-for="opt in options.scenicTypes" :key="opt.id" :value="opt.id">
                   {{ opt.content }}
                 </el-checkbox>
               </el-checkbox-group>
@@ -111,7 +111,7 @@
 
             <el-form-item label="8. 您本次出游，来我市游览的方式是（单选）：" required>
               <el-radio-group v-model="form.travelMode" class="radio-group-single">
-                <el-radio v-for="opt in options.travelMode" :key="opt.id" :label="opt.id">
+                <el-radio v-for="opt in options.travelMode" :key="opt.id" :value="opt.id">
                   {{ opt.content }}
                 </el-radio>
               </el-radio-group>
@@ -120,7 +120,7 @@
 
             <el-form-item label="9. 您本次出游，来我市游览的交通出行方式是（可多选）：" required>
               <el-checkbox-group v-model="form.transport" class="checkbox-group-single">
-                <el-checkbox v-for="opt in options.transport" :key="opt.id" :label="opt.id">
+                <el-checkbox v-for="opt in options.transport" :key="opt.id" :value="opt.id">
                   {{ opt.content }}
                 </el-checkbox>
               </el-checkbox-group>
@@ -217,7 +217,7 @@
               </div>
             </el-form-item>
             <el-form-item>
-              <el-button type="danger" @click="submit" class="submit-btn" :disabled="!isFormValid">提交问卷</el-button>
+              <el-button type="danger" @click="submit" class="submit-btn">提交问卷</el-button>
             </el-form-item>
           </template>
         </el-form>
@@ -227,8 +227,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, computed, onMounted, nextTick } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { submitAnswer, getOptions } from '@/api'
 import { useRouter } from 'vue-router'
 
@@ -298,15 +298,69 @@ const isFormValid = computed(() => {
   return true;
 });
 
+// 静态题号与label映射
+const staticRequiredMap = [
+  { key: 'address', label: '1. 您目前的常住地' },
+  { key: 'gender', label: '2. 您的性别' },
+  { key: 'age', label: '3. 您的年龄' },
+  { key: 'residence', label: '4. 您日常居住生活的地方' },
+  { key: 'purpose', label: '5. 您本次出游主要目的' },
+  { key: 'stayOvernight', label: '6. 您本次出游是否住宿过夜' },
+  { key: 'scenicTypes', label: '7. 您本次出游游览的景区类型' },
+  { key: 'travelMode', label: '8. 您本次出游来我市游览的方式' },
+  { key: 'transport', label: '9. 您本次出游交通方式' },
+  { key: 'planDays', label: '计划天数' },
+  { key: 'currentDay', label: '第几天' },
+]
+
+const scrollToFirstInvalid = () => {
+  nextTick(() => {
+    const formItems = document.querySelectorAll('.el-form-item')
+    for (let i = 0; i < formItems.length; i++) {
+      const item = formItems[i]
+      const label = item.querySelector('.el-form-item__label')
+      const input = item.querySelector('input, textarea, .el-radio-group, .el-checkbox-group')
+      if (input) {
+        if (input.tagName === 'INPUT' || input.tagName === 'TEXTAREA') {
+          if (!input.value) {
+            item.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            input.focus()
+            ElMessageBox.alert('请填写：' + (label?.innerText || '必填项'), '必填项未填写', { type: 'warning' })
+            break
+          }
+        } else if (input.classList.contains('el-radio-group')) {
+          const checked = item.querySelector('input[type=radio]:checked')
+          if (!checked) {
+            item.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            input.focus()
+            ElMessageBox.alert('请填写：' + (label?.innerText || '必填项'), '必填项未填写', { type: 'warning' })
+            break
+          }
+        } else if (input.classList.contains('el-checkbox-group')) {
+          const checked = item.querySelector('input[type=checkbox]:checked')
+          if (!checked) {
+            item.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            input.focus()
+            ElMessageBox.alert('请填写：' + (label?.innerText || '必填项'), '必填项未填写', { type: 'warning' })
+            break
+          }
+        }
+      }
+    }
+  })
+}
+
 const submit = async () => {
   if (!isFormValid.value) {
     ElMessage.warning('请完整填写所有必填项');
+    scrollToFirstInvalid();
     return;
   }
   if (shouldTerminate.value) {
     ElMessage.warning('您不符合本次调查条件，感谢您的参与！')
     return
   }
+
   // 组装所有问题答案（从地址开始，ID从1递增）
   const allAnswers = [
     { questionId: 1, answer: form.value.address },
@@ -344,6 +398,7 @@ const submit = async () => {
     { questionId: 33, answer: form.value.cityCount },
     { questionId: 34, answer: form.value.cityList }
   ];
+
   // 过滤未填写的答案
   const answers = allAnswers.filter(item => {
     if (item.answer === null || item.answer === undefined) return false;
@@ -351,10 +406,12 @@ const submit = async () => {
     if (Array.isArray(item.answer) && item.answer.length === 0) return false;
     return true;
   });
+
   const payload = {
     questionnaireId: form.value.questionnaireId || 1,
     answers
   };
+  
   await submitAnswer(payload)
   ElMessage.success('提交成功！')
   router.push('/success')
@@ -383,7 +440,7 @@ const handleCityCountChange = (e) => {
   let val = e && e.target ? e.target.value : form.value.cityCount
   val = parseInt(val) || 0
   if (val < 0) val = 0
-  
+
   // 自动调整cityList长度
   if (val > form.value.cityList.length) {
     for (let i = form.value.cityList.length; i < val; i++) {

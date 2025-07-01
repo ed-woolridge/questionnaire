@@ -319,4 +319,49 @@ public class AdminController {
             return Result.error("获取统计信息失败：" + e.getMessage());
         }
     }
+
+    /**
+     * 统计问卷下所有选择题各选项的选择次数和占比
+     */
+    @GetMapping("/answerSheets/optionStats")
+    @Operation(summary = "统计选择题选项分布", description = "统计问卷下所有选择题各选项的选择次数和占比")
+    public Result getOptionStats(@RequestParam Long questionnaireId) {
+        // 1. 查询该问卷下所有选择题
+        List<Question> questions = questionService.listByQuestionnaireId(questionnaireId)
+            .stream()
+            .filter(q -> "SINGLE_CHOICE".equals(q.getType()) || "MULTIPLE_CHOICE".equals(q.getType()))
+            .collect(Collectors.toList());
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Question q : questions) {
+            // 2. 查询该题所有选项
+            List<QuestionOption> options = questionOptionService.listByQuestionId(q.getId());
+            // 3. 查询该题所有答案
+            List<Answer> answers = answerService.list(
+                new QueryWrapper<Answer>().eq("question_id", q.getId()).eq("is_deleted", 0)
+            );
+            int total = answers.size();
+            Map<Long, Long> optionCount = answers.stream()
+                .filter(a -> a.getOptionId() != null)
+                .collect(Collectors.groupingBy(Answer::getOptionId, Collectors.counting()));
+
+            List<Map<String, Object>> optionStats = new ArrayList<>();
+            for (QuestionOption opt : options) {
+                long count = optionCount.getOrDefault(opt.getId(), 0L);
+                double percent = total == 0 ? 0 : (count * 1.0 / total);
+                Map<String, Object> optMap = new HashMap<>();
+                optMap.put("optionId", opt.getId());
+                optMap.put("content", opt.getContent());
+                optMap.put("count", count);
+                optMap.put("percent", percent);
+                optionStats.add(optMap);
+            }
+            Map<String, Object> qMap = new HashMap<>();
+            qMap.put("questionId", q.getId());
+            qMap.put("questionTitle", q.getContent());
+            qMap.put("options", optionStats);
+            result.add(qMap);
+        }
+        return Result.success(result);
+    }
 } 

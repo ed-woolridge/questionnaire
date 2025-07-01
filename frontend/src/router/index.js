@@ -5,6 +5,8 @@ import Login from '@/views/Login.vue'
 import QuestionnaireList from '@/views/Admin/QuestionnaireList.vue'
 import QuestionnaireEdit from '@/views/Admin/QuestionnaireEdit.vue'
 import AnswerSheetList from '@/views/Admin/AnswerSheetList.vue'
+import QuestionnaireStats from '@/views/Admin/QuestionnaireStats.vue'
+import QuestionManage from '@/views/Admin/QuestionManage.vue'
 
 const routes = [
   { path: '/', redirect: '/fill' },
@@ -16,7 +18,9 @@ const routes = [
     children: [
       { path: 'questionnaires', component: QuestionnaireList },
       { path: 'questionnaire/edit/:id?', component: QuestionnaireEdit },
-      { path: 'answer-sheets', component: AnswerSheetList }
+      { path: 'answer-sheets', component: AnswerSheetList },
+      { path: 'stats', component: QuestionnaireStats },
+      { path: 'questions', component: QuestionManage },
     ]
   }
 ]

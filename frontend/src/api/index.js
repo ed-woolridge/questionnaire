@@ -97,4 +97,16 @@ export const getAnswerSheetStats = (params) => {
     method: 'get',
     params
   })
+}
+
+export const getOptionStats = (questionnaireId) => {
+  return request({
+    url: '/api/admin/answerSheets/optionStats',
+    method: 'get',
+    params: { questionnaireId }
+  })
+}
+
+export const createQuestionWithOptions = (data) => {
+  return request.post('/admin/question/createWithOptions', data)
 } 
