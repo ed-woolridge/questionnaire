@@ -92,7 +92,7 @@
 - MySQL 8.0+
 
 ### 后端启动
-1. 创建数据库并导入 `src/main/resources/sql/questionnaire_db.sql`
+1. 创建数据库并导入 `src/main/resources/sql/questionnaire.sql`
 2. 修改 `src/main/resources/application.yml` 中的数据库配置
 3. 运行 `QuestionnaireApplication.java`
 
