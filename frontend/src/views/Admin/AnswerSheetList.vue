@@ -84,24 +84,24 @@
             stripe
           >
             <el-table-column type="selection" width="55" />
-            <el-table-column prop="id" label="ID" width="80" />
-            <el-table-column prop="questionnaireId" label="问卷ID" width="100" />
-            <el-table-column prop="status" label="状态" width="100">
+            <el-table-column prop="id" align="center" label="ID" width="50" />
+            <el-table-column prop="questionnaireId" align="center" label="问卷ID" width="80" />
+            <el-table-column prop="status" align="center" label="状态" width="100">
               <template #default="{ row }">
                 <el-tag :type="getStatusType(row.status)">
                   {{ getStatusText(row.status) }}
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="submitTime" label="提交时间" width="180">
+            <el-table-column prop="submitTime" align="center" label="提交时间" width="180">
               <template #default="{ row }">
                 {{ formatDate(row.submitTime) }}
               </template>
             </el-table-column>
-            <el-table-column prop="duration" label="填写时长(分钟)" width="120" />
-            <el-table-column prop="surveyorName" label="调查员" width="120" />
-            <el-table-column prop="surveyLocation" label="调查地点" />
-            <el-table-column label="操作" width="200" fixed="right">
+            <el-table-column prop="duration" align="center" label="填写时长(分钟)"  width="120" />
+            <el-table-column prop="surveyorName" align="center" label="调查员" width="120" />
+            <el-table-column prop="surveyLocation" align="center" label="调查地点" />
+            <el-table-column label="操作" align="center" width="200" fixed="right">
               <template #default="{ row }">
                 <el-button type="primary" size="small" @click="viewDetail(row.id)">
                   查看详情
@@ -160,7 +160,7 @@
             <h3>答案详情</h3>
             <div v-for="(item, index) in detailData.answers" :key="index" class="answer-item">
               <div class="question-title">
-                <strong>{{ index + 1 }}. {{ item.questionTitle }}</strong>
+                <strong> {{ item.questionTitle }}</strong>
               </div>
               <div class="answer-content">
                 <span class="answer-label">答案：</span>

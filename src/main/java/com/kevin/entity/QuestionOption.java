@@ -12,6 +12,7 @@ import lombok.Data;
 @TableName(value ="question_option")
 @Data
 public class QuestionOption {
+
     /**
      * 主键ID
      */
@@ -27,4 +28,10 @@ public class QuestionOption {
      * 问题选项
      */
     private String content;
+
+    /**
+     * 是否有子选项或者输入框
+     * 0：false 1：true
+     */
+    private Boolean showInput;
 }

@@ -1,57 +1,7 @@
 <template>
   <div class="fill-bg">
     <el-card class="fill-card">
-      <!-- 手机号验证区域 - 暂时注释掉，后期接入API时还原 -->
-      <!--
-      <div v-if="!isVerified" class="verify-section">
-        <div class="verify-title">手机号验证</div>
-        <div class="verify-desc">请先验证手机号，验证通过后才能填写问卷</div>
-        
-        <el-form :model="verifyForm" label-width="auto" class="verify-form">
-          <el-form-item label="手机号">
-            <el-input 
-              v-model="verifyForm.phone" 
-              placeholder="请输入手机号" 
-              maxlength="11"
-              :disabled="verifyForm.isSending"
-            />
-          </el-form-item>
-          
-          <el-form-item label="验证码">
-            <div class="code-input-group">
-              <el-input 
-                v-model="verifyForm.code" 
-                placeholder="请输入验证码" 
-                maxlength="6"
-                :disabled="verifyForm.isSending"
-              />
-              <el-button 
-                type="primary" 
-                :disabled="!verifyForm.phone || verifyForm.phone.length !== 11 || verifyForm.isSending"
-                @click="sendCode"
-                class="send-code-btn"
-              >
-                {{ verifyForm.countdown > 0 ? `${verifyForm.countdown}s` : '发送验证码' }}
-              </el-button>
-            </div>
-          </el-form-item>
-          
-          <el-form-item>
-            <el-button 
-              type="primary" 
-              @click="verifyCode" 
-              :disabled="!verifyForm.phone || !verifyForm.code || verifyForm.isVerifying"
-              class="verify-btn"
-            >
-              {{ verifyForm.isVerifying ? '验证中...' : '验证' }}
-            </el-button>
-          </el-form-item>
-        </el-form>
-      </div>
-      -->
-
       <!-- 问卷内容区域 -->
-      <!-- <div v-else> -->
       <div>
         <div class="title">地方接待国内游客抽样调查问卷</div>
         <div class="desc">
@@ -131,8 +81,9 @@
             </el-form-item>
             <el-form-item label="6. 您本次出游，是否住宿过夜：" required>
               <el-radio-group v-model="form.stayOvernight" class="radio-group-single">
-                <el-radio label="A">A.是</el-radio>
-                <el-radio label="B">B.否（选"否"免填本题后续内容）</el-radio>
+                <el-radio v-for="opt in options.stayOvernight" :key="opt.id" :label="opt.id">
+                  {{ opt.content }}
+                </el-radio>
               </el-radio-group>
             </el-form-item>
 
@@ -160,10 +111,9 @@
 
             <el-form-item label="8. 您本次出游，来我市游览的方式是（单选）：" required>
               <el-radio-group v-model="form.travelMode" class="radio-group-single">
-                <el-radio label="A">A.单位（安排）组织</el-radio>
-                <el-radio label="B">B.个人、家庭或亲朋结伴自由出行</el-radio>
-                <el-radio label="C">C.通过旅行社组团出行</el-radio>
-                <el-radio label="D">D.其他___（请注明）</el-radio>
+                <el-radio v-for="opt in options.travelMode" :key="opt.id" :label="opt.id">
+                  {{ opt.content }}
+                </el-radio>
               </el-radio-group>
               <el-input v-if="form.travelMode==='D'" v-model="form.travelModeOther" placeholder="请注明" style="margin-top: 8px; width: 300px;" />
             </el-form-item>
@@ -299,30 +249,16 @@ const options = ref({
 
  onMounted(async () => {
    // 查询对应的选项
-   options.value.gender = await getOptions(5)//性别
-   options.value.age = await getOptions(6)//年龄
-   options.value.residence = await getOptions(7)//居住地
-   options.value.purpose = await getOptions(8)//出行目的
-   options.value.stayOvernight = await getOptions(9)//住宿天数
+   options.value.gender = await getOptions(1)//性别
+   options.value.age = await getOptions(2)//年龄
+   options.value.residence = await getOptions(3)//居住地
+   options.value.purpose = await getOptions(5)//出行目的
+   options.value.stayOvernight = await getOptions(7)//是否过夜
    options.value.accommodation = await getOptions(12)//
-   options.value.scenicTypes = await getOptions(13)
-   options.value.travelMode = await getOptions(14)//交通方式
-   options.value.transport = await getOptions(16)//交通工具
+   options.value.scenicTypes = await getOptions(10)//景区类型
+   options.value.travelMode = await getOptions(11)//游览方式
+   options.value.transport = await getOptions(13)//交通工具
  })
-
-// 验证状态 - 暂时设为true，跳过验证
-const isVerified = ref(true)
-
-// 验证表单 - 暂时注释掉，后期接入API时还原
-/*
-const verifyForm = ref({
-  phone: '',
-  code: '',
-  isSending: false,
-  isVerifying: false,
-  countdown: 0
-})
-*/
 
 // 问卷表单
 const form = ref({
@@ -346,83 +282,6 @@ const shouldTerminate = computed(() =>
   form.value.q1 === 'B' || form.value.q2 === 'B' || form.value.q3 === 'A'
 )
 
-// 发送验证码 - 暂时注释掉，后期接入API时还原
-/*
-const sendCode = async () => {
-  if (!verifyForm.value.phone || verifyForm.value.phone.length !== 11) {
-    ElMessage.warning('请输入正确的手机号')
-    return
-  }
-  
-  verifyForm.value.isSending = true
-  try {
-    const { data } = await sendSmsCode(verifyForm.value.phone, 'QUESTIONNAIRE')
-    if (data.code === '200') {
-      ElMessage.success('验证码发送成功')
-      startCountdown()
-    } else {
-      ElMessage.error(data.message || '发送失败')
-    }
-  } catch (error) {
-    ElMessage.error('发送失败，请重试')
-  } finally {
-    verifyForm.value.isSending = false
-  }
-}
-*/
-
-// 验证验证码 - 暂时注释掉，后期接入API时还原
-/*
-const verifyCode = async () => {
-  if (!verifyForm.value.phone || !verifyForm.value.code) {
-    ElMessage.warning('请输入手机号和验证码')
-    return
-  }
-  
-  verifyForm.value.isVerifying = true
-  try {
-    const { data } = await verifySmsCode(verifyForm.value.phone, verifyForm.value.code, 'QUESTIONNAIRE')
-    if (data.code === '200') {
-      ElMessage.success('验证成功')
-      isVerified.value = true
-      // 保存验证状态到本地存储
-      localStorage.setItem('questionnaire_verified', 'true')
-      localStorage.setItem('questionnaire_phone', verifyForm.value.phone)
-    } else {
-      ElMessage.error(data.message || '验证失败')
-    }
-  } catch (error) {
-    ElMessage.error('验证失败，请重试')
-  } finally {
-    verifyForm.value.isVerifying = false
-  }
-}
-*/
-
-// 倒计时 - 暂时注释掉，后期接入API时还原
-/*
-const startCountdown = () => {
-  verifyForm.value.countdown = 60
-  const timer = setInterval(() => {
-    verifyForm.value.countdown--
-    if (verifyForm.value.countdown <= 0) {
-      clearInterval(timer)
-    }
-  }, 1000)
-}
-*/
-
-// 检查是否已验证 - 暂时注释掉，后期接入API时还原
-/*
-onMounted(() => {
-  const verified = localStorage.getItem('questionnaire_verified')
-  const phone = localStorage.getItem('questionnaire_phone')
-  if (verified === 'true' && phone) {
-    isVerified.value = true
-    verifyForm.value.phone = phone
-  }
-})
-*/
 
 const isFormValid = computed(() => {
   if (!form.value.q1 || !form.value.q2 || !form.value.q3) return false;
@@ -448,45 +307,42 @@ const submit = async () => {
     ElMessage.warning('您不符合本次调查条件，感谢您的参与！')
     return
   }
-  // 组装所有问题答案
+  // 组装所有问题答案（从地址开始，ID从1递增）
   const allAnswers = [
-    { questionId: 1, answer: form.value.q1 },
-    { questionId: 2, answer: form.value.q2 },
-    { questionId: 3, answer: form.value.q3 },
-    { questionId: 4, answer: form.value.address },
-    { questionId: 5, answer: form.value.gender },
-    { questionId: 6, answer: form.value.age },
-    { questionId: 7, answer: form.value.residence },
-    { questionId: 8, answer: form.value.purpose },
-    { questionId: 9, answer: form.value.purposeOther },
-    { questionId: 10, answer: form.value.stayOvernight },
-    { questionId: 11, answer: form.value.nights },
-    { questionId: 12, answer: form.value.accommodation },
-    { questionId: 13, answer: form.value.scenicTypes },
-    { questionId: 14, answer: form.value.travelMode },
-    { questionId: 15, answer: form.value.travelModeOther },
-    { questionId: 16, answer: form.value.transport },
-    { questionId: 17, answer: form.value.planDays },
-    { questionId: 18, answer: form.value.currentDay },
-    { questionId: 19, answer: form.value.agencyFee },
-    { questionId: 20, answer: form.value.transportFee },
-    { questionId: 21, answer: form.value.feePlane },
-    { questionId: 22, answer: form.value.feeTrain },
-    { questionId: 23, answer: form.value.feeBus },
-    { questionId: 24, answer: form.value.feeShip },
-    { questionId: 25, answer: form.value.feeCar },
-    { questionId: 26, answer: form.value.otherFee },
-    { questionId: 27, answer: form.value.feeFood },
-    { questionId: 28, answer: form.value.feeHotel },
-    { questionId: 29, answer: form.value.feeTicket },
-    { questionId: 30, answer: form.value.feeShopping },
-    { questionId: 31, answer: form.value.feeCulture },
-    { questionId: 32, answer: form.value.feeArt },
-    { questionId: 33, answer: form.value.feeMedical },
-    { questionId: 34, answer: form.value.feeCityTrans },
-    { questionId: 35, answer: form.value.feeOther },
-    { questionId: 36, answer: form.value.cityCount },
-    { questionId: 37, answer: form.value.cityList }
+    { questionId: 1, answer: form.value.address },
+    { questionId: 2, answer: form.value.gender },
+    { questionId: 3, answer: form.value.age },
+    { questionId: 4, answer: form.value.residence },
+    { questionId: 5, answer: form.value.purpose },
+    { questionId: 6, answer: form.value.purposeOther },
+    { questionId: 7, answer: form.value.stayOvernight },
+    { questionId: 8, answer: form.value.nights },
+    { questionId: 9, answer: form.value.accommodation },
+    { questionId: 10, answer: form.value.scenicTypes },
+    { questionId: 11, answer: form.value.travelMode },
+    { questionId: 12, answer: form.value.travelModeOther },
+    { questionId: 13, answer: form.value.transport },
+    { questionId: 14, answer: form.value.planDays },
+    { questionId: 15, answer: form.value.currentDay },
+    { questionId: 16, answer: form.value.agencyFee },
+    { questionId: 17, answer: form.value.transportFee },
+    { questionId: 18, answer: form.value.feePlane },
+    { questionId: 19, answer: form.value.feeTrain },
+    { questionId: 20, answer: form.value.feeBus },
+    { questionId: 21, answer: form.value.feeShip },
+    { questionId: 22, answer: form.value.feeCar },
+    { questionId: 23, answer: form.value.otherFee },
+    { questionId: 24, answer: form.value.feeFood },
+    { questionId: 25, answer: form.value.feeHotel },
+    { questionId: 26, answer: form.value.feeTicket },
+    { questionId: 27, answer: form.value.feeShopping },
+    { questionId: 28, answer: form.value.feeCulture },
+    { questionId: 29, answer: form.value.feeArt },
+    { questionId: 30, answer: form.value.feeMedical },
+    { questionId: 31, answer: form.value.feeCityTrans },
+    { questionId: 32, answer: form.value.feeOther },
+    { questionId: 33, answer: form.value.cityCount },
+    { questionId: 34, answer: form.value.cityList }
   ];
   // 过滤未填写的答案
   const answers = allAnswers.filter(item => {
@@ -527,6 +383,7 @@ const handleCityCountChange = (e) => {
   let val = e && e.target ? e.target.value : form.value.cityCount
   val = parseInt(val) || 0
   if (val < 0) val = 0
+  
   // 自动调整cityList长度
   if (val > form.value.cityList.length) {
     for (let i = form.value.cityList.length; i < val; i++) {
@@ -552,44 +409,6 @@ const handleCityCountChange = (e) => {
   border-radius: 18px;
   padding: 32px 48px 32px 48px;
 }
-
-/* 验证区域样式 - 暂时注释掉，后期接入API时还原 */
-/*
-.verify-section {
-  text-align: center;
-  padding: 40px 0;
-}
-.verify-title {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 12px;
-  color: #409eff;
-}
-.verify-desc {
-  font-size: 16px;
-  color: #666;
-  margin-bottom: 32px;
-}
-.verify-form {
-  max-width: 400px;
-  margin: 0 auto;
-}
-.code-input-group {
-  display: flex;
-  gap: 12px;
-}
-.send-code-btn {
-  width: 120px;
-  flex-shrink: 0;
-}
-.verify-btn {
-  width: 100%;
-  font-size: 18px;
-  height: 44px;
-  border-radius: 22px;
-  letter-spacing: 2px;
-}
-*/
 
 .title {
   font-size: 26px;

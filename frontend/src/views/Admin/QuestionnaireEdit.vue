@@ -1,21 +1,23 @@
 <template>
   <AdminLayout>
-    <div class="edit-title">问卷编辑</div>
-    <el-form :model="form" label-width="auto" label-position="top" class="edit-form">
-      <el-form-item label="问卷标题">
-        <el-input v-model="form.title" placeholder="请输入问卷标题" />
-      </el-form-item>
-      <el-form-item label="描述">
-        <el-input v-model="form.description" type="textarea" />
-      </el-form-item>
-      <el-form-item label="状态">
-        <el-switch v-model="form.status" active-text="启用" inactive-text="停用" />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" class="save-btn" @click="save">保存</el-button>
-        <el-button @click="$router.back()">返回</el-button>
-      </el-form-item>
-    </el-form>
+    <el-card class="main-card">
+      <div class="edit-title">问卷编辑</div>
+      <el-form :model="form" label-width="auto" label-position="top" class="edit-form">
+        <el-form-item label="问卷标题">
+          <el-input v-model="form.title" placeholder="请输入问卷标题" />
+        </el-form-item>
+        <el-form-item label="描述">
+          <el-input v-model="form.description" type="textarea" />
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-switch v-model="form.status" active-text="启用" inactive-text="停用" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" class="save-btn" @click="save">保存</el-button>
+          <el-button @click="$router.back()">返回</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
   </AdminLayout>
 </template>
 
@@ -52,6 +54,12 @@ async function save() {
 </script>
 
 <style scoped>
+.main-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
 .edit-title {
   font-size: 24px;
   font-weight: bold;

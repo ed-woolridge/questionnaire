@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -120,18 +121,7 @@ public class AdminController {
             @Parameter(description = "结束时间") @RequestParam(required = false) String endTime) {
         try {
             Page<AnswerSheet> pageParam = new Page<>(page, size);
-            QueryWrapper<AnswerSheet> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("is_deleted", 0);
-            
-            if (questionnaireId != null) {
-                queryWrapper.eq("questionnaire_id", questionnaireId);
-            }
-            if (status != null && !status.isEmpty()) {
-                queryWrapper.eq("status", status);
-            }
-            if (startTime != null && !startTime.isEmpty()) {
-                queryWrapper.ge("submit_time", startTime);
-            }
+            QueryWrapper<AnswerSheet> queryWrapper = getAnswerSheetQueryWrapper(questionnaireId, status, startTime);
             if (endTime != null && !endTime.isEmpty()) {
                 queryWrapper.le("submit_time", endTime);
             }
@@ -143,6 +133,22 @@ public class AdminController {
         } catch (Exception e) {
             return Result.error("查询失败：" + e.getMessage());
         }
+    }
+
+    private static QueryWrapper<AnswerSheet> getAnswerSheetQueryWrapper(Long questionnaireId, String status, String startTime) {
+        QueryWrapper<AnswerSheet> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("is_deleted", 0);
+
+        if (questionnaireId != null) {
+            queryWrapper.eq("questionnaire_id", questionnaireId);
+        }
+        if (status != null && !status.isEmpty()) {
+            queryWrapper.eq("status", status);
+        }
+        if (startTime != null && !startTime.isEmpty()) {
+            queryWrapper.ge("submit_time", startTime);
+        }
+        return queryWrapper;
     }
 
     /**
@@ -158,43 +164,46 @@ public class AdminController {
             if (answerSheet == null) {
                 return Result.error("答卷不存在");
             }
-            
             // 获取答案列表
             QueryWrapper<Answer> answerQuery = new QueryWrapper<>();
             answerQuery.eq("answer_sheet_id", id);
             List<Answer> answers = answerService.list(answerQuery);
-            
-            // 获取问题信息并组装答案
+
+            // 合并同一题目的所有答案
+            Map<Long, List<Answer>> answerMap = answers.stream()
+                .collect(Collectors.groupingBy(Answer::getQuestionId));
+
+            List<Map<String, Object>> answerDetails = new ArrayList<>();
+            for (Map.Entry<Long, List<Answer>> entry : answerMap.entrySet()) {
+                Map<String, Object> detail = new HashMap<>();
+                Question question = questionService.getById(entry.getKey());
+                // 只显示原始题干
+                detail.put("questionTitle", question != null ? question.getContent() : "");
+
+                // 合并多选题答案
+                String answerContent = entry.getValue().stream()
+                    .map(ans -> {
+                        if (ans.getOptionId() != null) {
+                            QuestionOption option = questionOptionService.getById(ans.getOptionId());
+                            return option != null ? option.getContent() : "";
+                        } else if (ans.getTextAnswer() != null) {
+                            return ans.getTextAnswer();
+                        } else if (ans.getNumberAnswer() != null) {
+                            return ans.getNumberAnswer().toString();
+                        }
+                        return "";
+                    })
+                    .filter(s -> s != null && !s.isEmpty())
+                    .collect(Collectors.joining("，")); // 用顿号分隔
+                detail.put("answerContent", answerContent);
+                answerDetails.add(detail);
+            }
             Map<String, Object> result = new HashMap<>();
             result.put("answerSheet", answerSheet);
-            
-            List<Map<String, Object>> answerDetails = answers.stream().map(answer -> {
-                Map<String, Object> detail = new HashMap<>();
-                // 获取问题信息
-                Question question = questionService.getById(answer.getQuestionId());
-                detail.put("questionTitle", question != null ? question.getContent() : "");
-                // 选项内容
-                String answerContent = null;
-                if (answer.getOptionId() != null) {
-                    // 通过选项ID查找选项内容
-                    QuestionOption option = questionOptionService.getById(answer.getOptionId());
-                    answerContent = option != null ? option.getContent() : (answer.getOptionId() + "");
-                } else if (answer.getTextAnswer() != null) {
-                    answerContent = answer.getTextAnswer();
-                } else if (answer.getNumberAnswer() != null) {
-                    answerContent = answer.getNumberAnswer().toString();
-                } else {
-                    answerContent = "";
-                }
-                detail.put("answerContent", answerContent);
-                return detail;
-            }).collect(Collectors.toList());
-            
             result.put("answers", answerDetails);
-            
             return Result.success(result);
         } catch (Exception e) {
-            return Result.error("查询失败：" + e.getMessage());
+            return Result.error("获取详情失败：" + e.getMessage());
         }
     }
 
