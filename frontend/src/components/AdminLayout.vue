@@ -1,9 +1,9 @@
 <template>
   <div class="admin-layout">
-    <el-container style="min-height: 100vh;">
-      <el-aside :width="collapsed ? '64px' : '210px'" class="sidebar" :class="{ collapsed }">
+    <el-container style="height: 100vh;">
+      <el-aside :width="collapsed ? '70px' : '200px'" class="sidebar" :class="{ collapsed }">
         <div class="sidebar-inner">
-          <div class="logo" v-if="!collapsed">问卷后台</div>
+          <img src="@/assets/img/questionnaire.png" class="image"/>
           <el-menu :default-active="$route.path" router class="menu" :collapse="collapsed"
             background-color="#22304a"
             text-color="#fff"
@@ -42,9 +42,18 @@
           </div>
           <div class="header-title">地方接待国内游客抽样调查问卷管理系统</div>
           <div class="user-info">
-            <el-icon style="margin-right:10px;"><UserFilled /></el-icon>
-            <span class="username">{{ username }}</span>
-            <span class="username" @click="logout" style="cursor: pointer;">退出登录</span>
+            <el-icon style="margin-right:10px;font-size: 20px;"><UserFilled /></el-icon>
+            <!-- 下拉框 -->
+            <el-dropdown placement="bottom">
+              <span class="username"> {{ username }} </span>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item>个人信息</el-dropdown-item>
+                    <el-dropdown-item>修改密码</el-dropdown-item>
+                    <el-dropdown-item @click="logout" style="cursor: pointer;">退出登录</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+            </el-dropdown>
           </div>
         </el-header>
         <el-main class="main">
@@ -78,6 +87,12 @@ function logout() {
 </script>
 
 <style scoped>
+.image{
+  margin-top: 20px;
+  margin-bottom: 20px;
+  width: 40px;
+  height: 40px;
+}
 .admin-layout {
   min-height: 100vh;
   background: linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%);
@@ -165,7 +180,9 @@ function logout() {
 
 .username {
   margin-right: 16px;
-  font-weight: 500;
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
 }
 .main {
   /* 上右下左 */
@@ -173,17 +190,29 @@ function logout() {
   background: transparent;
   min-height: 600px;
 }
+
 :deep(.el-menu) {
   background-color: #22304a !important;
+  width: 100%;
 }
+
+/* 一级菜单 */
 :deep(.el-menu-item) {
   color: #fff !important;
+  width: 100%;
+  justify-content: center !important;
 }
+
+/* click */
 :deep(.el-menu-item.is-active) {
   background-color: #162032 !important;
   color: #409eff !important;
+  width: 100%;
 }
+
 :deep(.el-menu-item:hover) {
   background-color: #2d3a4b !important;
+  width: 100%;
 }
+
 </style> 

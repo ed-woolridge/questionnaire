@@ -92,7 +92,14 @@
             <!--只有选项为showInput为true时才会出现-->
             <template v-if="form.stayOvernight === stayOvernightShowInputId">
               <el-form-item label="如您出游期间住宿过夜，在我市共住___夜" required>
-                <el-input v-model="form.nights" placeholder="请输入夜数" style="width: 120px;" @input="handleNumberInput('nights')" />
+                <el-input-number v-model="form.nights" style="margin-top: 10px;width: 180px;" :min="1" controls-position="right">
+                  <template #prefix>
+                    <span>住宿</span>
+                  </template>
+                  <template #suffix>
+                    <span>夜</span>
+                  </template>
+                </el-input-number>
               </el-form-item>
               <el-form-item label="主要选择的住宿设施（住宿时间最长）是（单选）" required>
                 <el-radio-group v-model="form.accommodation" class="radio-group-single">
@@ -317,7 +324,7 @@
                   </template>
                 </el-input-number>
 
-                <el-input-number v-model="form.feeCityTrans" style="width: 230px;margin-top: 10px;" :min="0" controls-position="right">
+                <el-input-number v-model="form.feeOther" style="width: 230px;margin-top: 10px;" :min="0" controls-position="right">
                   <template #prefix>
                     <span>I.其他</span>
                   </template>
