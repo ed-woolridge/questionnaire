@@ -1,8 +1,8 @@
 <template>
-  <div class="login-bg">
-    <div class="login-overlay"></div>
-    <el-card class="login-card">
-      <div class="login-illustration">
+  <div class="unauth-bg">
+    <div class="unauth-overlay"></div>
+    <el-card class="unauth-card">
+      <div class="unauth-illustration">
         <svg width="160" height="100" viewBox="0 0 180 120" fill="none" xmlns="http://www.w3.org/2000/svg">
           <ellipse cx="90" cy="100" rx="70" ry="12" fill="#e0e7ef"/>
           <circle cx="60" cy="60" r="32" fill="#f8fafc" stroke="#409eff" stroke-width="3"/>
@@ -12,50 +12,44 @@
           <rect x="80" y="80" width="20" height="8" rx="4" fill="#409eff" fill-opacity="0.12"/>
         </svg>
       </div>
-      <div class="login-title">管理员登录</div>
-      <el-form :model="form" class="login-form" label-position="top">
-        <el-form-item label="用户名">
-          <el-input v-model="form.username" placeholder="请输入用户名" size="large" />
-        </el-form-item>
-        <el-form-item label="密码">
-          <el-input v-model="form.password" placeholder="请输入密码" size="large" show-password />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" class="login-btn" @click="login">登录</el-button>
-        </el-form-item>
-      </el-form>
+      <div class="unauth-icon fade-in">
+        <el-icon size="80" color="#f56c6c">
+          <Lock />
+        </el-icon>
+      </div>
+      <div class="unauth-title fade-in">访问被拒绝</div>
+      <div class="unauth-desc">
+        您没有权限访问此页面，请先登录管理员账户
+      </div>
+      <div class="unauth-actions">
+        <el-button type="primary" size="large" @click="goToLogin">
+          前往登录
+        </el-button>
+        <el-button size="large" @click="goBack">
+          返回上页
+        </el-button>
+      </div>
     </el-card>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { login as apiLogin } from '@/api'
+import { Lock } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import { setAuth } from '@/utils/auth'
 
 const router = useRouter()
-const form = ref({ username: '', password: '' })
 
-const login = async () => {
-  try {
-    const { data } = await apiLogin(form.value)
-    if (data.code === '200') {
-      setAuth(data.data)
-      ElMessage.success('登录成功')
-      router.push('/admin/questionnaires')
-    } else {
-      ElMessage.error(data.message || '登录失败')
-    }
-  } catch (error) {
-    ElMessage.error('登录失败，请检查网络连接')
-  }
+const goToLogin = () => {
+  router.push('/admin/login')
+}
+
+const goBack = () => {
+  router.go(-1)
 }
 </script>
 
 <style scoped>
-.login-bg {
+.unauth-bg {
   min-height: 100vh;
   min-width: 100vw;
   width: 100vw;
@@ -70,7 +64,7 @@ const login = async () => {
   background: linear-gradient(135deg, #e0e7ef 0%, #f8fafc 100%), url('https://cdn.jsdelivr.net/gh/konpa/devicon@master/icons/vuejs/vuejs-original.svg') no-repeat right bottom;
   background-size: cover, 220px;
 }
-.login-overlay {
+.unauth-overlay {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   width: 100vw; height: 100vh;
@@ -78,8 +72,8 @@ const login = async () => {
   z-index: 1;
   pointer-events: none;
 }
-.login-card {
-  width: 400px;
+.unauth-card {
+  width: 480px;
   padding: 48px 32px 36px 32px;
   border-radius: 18px;
   box-shadow: 0 2px 32px #0002;
@@ -89,7 +83,7 @@ const login = async () => {
   background: rgba(255,255,255,0.95);
   backdrop-filter: blur(2px);
 }
-.login-illustration {
+.unauth-illustration {
   margin-bottom: 8px;
   animation: float 2.5s ease-in-out infinite alternate;
 }
@@ -97,32 +91,45 @@ const login = async () => {
   0% { transform: translateY(0); }
   100% { transform: translateY(-10px); }
 }
-.login-title {
-  font-size: 26px;
-  font-weight: bold;
-  text-align: center;
+.fade-in {
+  animation: fadeIn 1.2s;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.unauth-icon {
   margin-bottom: 24px;
-  color: #409eff;
-  letter-spacing: 2px;
 }
-.login-form {
-  margin-top: 10px;
+.unauth-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #f56c6c;
+  margin-bottom: 16px;
 }
-.login-btn {
-  width: 100%;
-  font-size: 18px;
-  height: 44px;
-  border-radius: 22px;
-  letter-spacing: 2px;
+.unauth-desc {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 32px;
+  line-height: 1.5;
+}
+.unauth-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+.unauth-actions .el-button {
+  min-width: 120px;
+  border-radius: 8px;
 }
 @media (max-width: 600px) {
-  .login-card {
+  .unauth-card {
     width: 98vw;
     padding: 24px 6vw 18px 6vw;
   }
-  .login-illustration svg {
+  .unauth-illustration svg {
     width: 100px;
     height: 60px;
   }
 }
-</style> 
+</style>

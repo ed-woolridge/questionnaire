@@ -5,7 +5,7 @@
         <div class="page-header">
           <h2>问题管理</h2>
           <el-form :inline="true" :model="searchForm" class="search-form">
-            <el-form-item label="问卷选择">
+            <el-form-item label="问卷选择" style="width: 260px;">
               <el-select v-model="searchForm.questionnaireId" placeholder="请选择问卷" @change="fetchQuestions">
                 <el-option v-for="q in questionnaireList" :key="q.id" :label="q.title" :value="q.id" />
               </el-select>
@@ -82,12 +82,16 @@ const newAddOption = ref('')
 const newOption = reactive({})
 
 const fetchQuestionnaireList = async () => {
-  try {
-    const { data } = await getQuestionnaireList()
-    questionnaireList.value = data
-  } catch (e) {
-    ElMessage.error('获取问卷列表失败')
-  }
+    try {
+        const res = await getQuestionnaireList()
+        if (res.data && res.data.code === '200') {
+            questionnaireList.value = res.data.data
+        } else {
+            questionnaireList.value = []
+        }
+    } catch (e) {
+        ElMessage.error('获取问卷列表失败')
+    }
 }
 
 const fetchQuestions = async () => {

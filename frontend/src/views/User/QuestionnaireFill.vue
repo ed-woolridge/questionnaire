@@ -38,7 +38,7 @@
           <template v-else>
             <div class="section-title">调查部分</div>
             <el-form-item label="1. 您目前的常住地是_______省（自治区、直辖市）________市（州、盟）______县（区、市、旗）（常住地是指连续居住生活 6 个月以上的地区）" required>
-              <el-input v-model="form.address" placeholder="省/市/县（区/旗）" style="width: 200px;" />
+              <el-input v-model="form.address" placeholder="省/市/县（区/旗）" style="width: 130px;" />
             </el-form-item>
             <el-form-item label="2. 您的性别是：" required>
               <el-radio-group v-model="form.gender" class="radio-group-single">
@@ -63,21 +63,23 @@
             </el-form-item>
             <el-form-item label="5. 您本次出游，主要目的是（单选）：" required>
               <el-radio-group v-model="form.purpose" class="radio-group-single">
-                <el-radio v-for="opt in options.purpose" :key="opt.id" :value="opt.id">
+                <el-radio
+                  v-for="opt in options.purpose"
+                  :key="opt.id"
+                  :value="opt.id"
+                  :style="opt.showInput ? 'display: flex; align-items: center;' : ''"
+                >
                   {{ opt.content }}
+                  <template v-if="opt.showInput && form.purpose === opt.id">
+                    <el-input
+                      v-model="form.purposeOther"
+                      placeholder="请注明"
+                      style="width: 180px; margin-left: 8px;"
+                      size="small"
+                    />
+                  </template>
                 </el-radio>
               </el-radio-group>
-
-              <!--其他目的输入框-->
-              <div v-if="form.purposeOther" class="input-indent input-inline" style="margin-top: 8px;">
-                <span class="input-tip">请填写：</span>
-                <el-input
-                  v-model="form.purposeOther"
-                  placeholder="请注明"
-                  style="width: 240px;"
-                  size="small"
-                />
-              </div>
             </el-form-item>
             <el-form-item label="6. 您本次出游，是否住宿过夜：" required>
               <el-radio-group v-model="form.stayOvernight" class="radio-group-single">
@@ -87,10 +89,10 @@
               </el-radio-group>
             </el-form-item>
 
-            <!--只有选项为A时才会出现-->
-            <template v-if="form.stayOvernight==='A'">
+            <!--只有选项为showInput为true时才会出现-->
+            <template v-if="form.stayOvernight === stayOvernightShowInputId">
               <el-form-item label="如您出游期间住宿过夜，在我市共住___夜" required>
-                <el-input v-model="form.nights" placeholder="请输入夜数" style="width: 120px;" />
+                <el-input v-model="form.nights" placeholder="请输入夜数" style="width: 120px;" @input="handleNumberInput('nights')" />
               </el-form-item>
               <el-form-item label="主要选择的住宿设施（住宿时间最长）是（单选）" required>
                 <el-radio-group v-model="form.accommodation" class="radio-group-single">
@@ -111,11 +113,23 @@
 
             <el-form-item label="8. 您本次出游，来我市游览的方式是（单选）：" required>
               <el-radio-group v-model="form.travelMode" class="radio-group-single">
-                <el-radio v-for="opt in options.travelMode" :key="opt.id" :value="opt.id">
+                <el-radio
+                  v-for="opt in options.travelMode"
+                  :key="opt.id"
+                  :value="opt.id"
+                  :style="opt.showInput ? 'display: flex; align-items: center;' : ''"
+                >
                   {{ opt.content }}
+                  <template v-if="opt.showInput && form.travelMode === opt.id">
+                    <el-input
+                      v-model="form.travelModeOther"
+                      placeholder="请注明"
+                      style="width: 180px; margin-left: 8px;"
+                      size="small"
+                    />
+                  </template>
                 </el-radio>
               </el-radio-group>
-              <el-input v-if="form.travelMode==='D'" v-model="form.travelModeOther" placeholder="请注明" style="margin-top: 8px; width: 300px;" />
             </el-form-item>
 
             <el-form-item label="9. 您本次出游，来我市游览的交通出行方式是（可多选）：" required>
@@ -127,87 +141,204 @@
             </el-form-item>
 
             <el-form-item label="10.您计划在本市游览___天，今天是您来本市的第___天。" required>
-              <div class="input-single-row">
-                <span class="input-label">计划天数</span>
-                <el-input v-model="form.planDays"  placeholder="计划天数" style="width: 180px;" @input="validateNumber" />
-              </div>
-              <div class="input-single-row">
-                <span class="input-label">第几天</span>
-                <el-input v-model="form.currentDay" placeholder="第几天" style="width: 180px;" @input="validateNumber" />
-              </div>
+              <el-space direction="vertical">
+                <el-input-number v-model="form.planDays" style="margin-top: 10px;width: 180px;" :min="1" controls-position="right">
+                  <template #prefix>
+                    <span>计划游览</span>
+                  </template>
+                  <template #suffix>
+                    <span>天</span>
+                  </template>
+                </el-input-number>
+              <el-input-number v-model="form.currentDay" style="width: 180px;" :min="1" controls-position="right">
+                <template #prefix>
+                  <span>当前是第</span>
+                </template>
+                <template #suffix>
+                  <span>天</span>
+                </template>
+              </el-input-number>
+              </el-space>
             </el-form-item>
-            <el-form-item label="（1）您本人本次出游，交给旅行社或由单位支付的费用是:__元（如未发生此项费用支出，本项目请填'0'）。">
-              <el-input v-model="form.agencyFee" placeholder="请输入金额" style="width: 180px;" @input="validateNumber" />
+
+            <el-form-item label="（1）您本人本次出游，交给旅行社或由单位支付的费用是:___元（如未发生此项费用支出，本项目请填'0'）。" required>
+              <el-input-number v-model="form.agencyFee" style="width: 200px;margin-top: 10px;" :min="0" controls-position="right">
+                <template #prefix>
+                  <span>支出费用</span>
+                </template>
+                <template #suffix>
+                  <span>元</span>
+                </template>
+              </el-input-number>
             </el-form-item>
-            <el-form-item label="（2）您本人本次出游期间支出的交通费__元。（如此项费用已含在交给旅行社或由单位支付的费用中，本项目请填'0'）">
-              <el-input v-model="form.transportFee" placeholder="请输入金额" style="width: 180px;" @input="validateNumber" />
+
+            <el-form-item label="（2）您本人本次出游期间支出的交通费___元。（如此项费用已含在交给旅行社或由单位支付的费用中，本项目请填'0'）" required>
+              <el-input-number v-model="form.transportFee" style="width: 200px;margin-top: 10px;" :min="0" controls-position="right">
+                <template #prefix>
+                  <span>交通费</span>
+                </template>
+                <template #suffix>
+                  <span>元</span>
+                </template>
+              </el-input-number>
             </el-form-item>
+
+            <el-form-item label="其中:">
+              <el-space direction="vertical">
+                <el-input-number v-model="form.feePlane" style="width: 200px;margin-top: 10px;" :min="0" controls-position="right">
+                  <template #prefix>
+                    <span>A.飞机</span>
+                  </template>
+                  <template #suffix>
+                    <span>元</span>
+                  </template>
+                </el-input-number>
+
+                <el-input-number v-model="form.feeTrain" style="width: 200px;margin-top: 10px;" :min="0" controls-position="right">
+                  <template #prefix>
+                    <span>B.火车</span>
+                  </template>
+                  <template #suffix>
+                    <span>元</span>
+                  </template>
+                </el-input-number>
+
+                <el-input-number v-model="form.feeBus" style="width: 200px;margin-top: 10px;" :min="0" controls-position="right">
+                  <template #prefix>
+                    <span>C.长途汽车</span>
+                  </template>
+                  <template #suffix>
+                    <span>元</span>
+                  </template>
+                </el-input-number>
+
+                <el-input-number v-model="form.feeShip" style="width: 200px;margin-top: 10px;" :min="0" controls-position="right">
+                  <template #prefix>
+                    <span>D.轮船</span>
+                  </template>
+                  <template #suffix>
+                    <span>元</span>
+                  </template>
+                </el-input-number>
+
+                <el-input-number v-model="form.feeCar" style="width: 200px;margin-top: 10px;" :min="0" controls-position="right">
+                  <template #prefix>
+                    <span>E.自驾车或租车</span>
+                  </template>
+                  <template #suffix>
+                    <span>元</span>
+                  </template>
+                </el-input-number>
+              </el-space>
+            </el-form-item>
+
+            <el-form-item label="（3）除上述（1）（2）两项费用之外，截至此时，您本人在我市游览期间支付的费用是:___元。" required>
+              <el-input-number v-model="form.otherFee" style="width: 230px;margin-top: 10px;" :min="0" controls-position="right">
+                <template #prefix>
+                  <span>支出的费用为</span>
+                </template>
+                <template #suffix>
+                  <span>元</span>
+                </template>
+              </el-input-number>
+            </el-form-item>
+
             <el-form-item label="其中：">
-              <div class="input-single-row">
-                <span class="input-label">A.飞机</span>
-                <el-input v-model="form.feePlane" placeholder="飞机" style="width: 180px;" @input="validateNumber" />
-              </div>
-              <div class="input-single-row">
-                <span class="input-label">B.火车</span>
-                <el-input v-model="form.feeTrain" placeholder="火车" style="width: 180px;" @input="validateNumber" />
-              </div>
-              <div class="input-single-row">
-                <span class="input-label">C.长途汽车</span>
-                <el-input v-model="form.feeBus" placeholder="长途汽车" style="width: 180px;" @input="validateNumber" />
-              </div>
-              <div class="input-single-row">
-                <span class="input-label">D.轮船</span>
-                <el-input v-model="form.feeShip" placeholder="轮船" style="width: 180px;" @input="validateNumber" />
-              </div>
-              <div class="input-single-row">
-                <span class="input-label">E.自驾车或租车</span>
-                <el-input v-model="form.feeCar" placeholder="自驾/租车" style="width: 180px;" @input="validateNumber" />
-              </div>
+              <el-space direction="vertical">
+                <el-input-number v-model="form.feeFood" style="width: 230px;margin-top: 10px;" :min="0" controls-position="right">
+                  <template #prefix>
+                    <span>A.餐饮</span>
+                  </template>
+                  <template #suffix>
+                    <span>元</span>
+                  </template>
+                </el-input-number>
+
+                <el-input-number v-model="form.feeHotel" style="width: 230px;margin-top: 10px;" :min="0" controls-position="right">
+                  <template #prefix>
+                    <span>B.住宿</span>
+                  </template>
+                  <template #suffix>
+                    <span>元</span>
+                  </template>
+                </el-input-number>
+
+                <el-input-number v-model="form.feeTicket" style="width: 230px;margin-top: 10px;" :min="0" controls-position="right">
+                  <template #prefix>
+                    <span>C.门票</span>
+                  </template>
+                  <template #suffix>
+                    <span>元</span>
+                  </template>
+                </el-input-number>
+
+                <el-input-number v-model="form.feeShopping" style="width: 230px;margin-top: 10px;" :min="0" controls-position="right">
+                  <template #prefix>
+                    <span>D.购物</span>
+                  </template>
+                  <template #suffix>
+                    <span>元</span>
+                  </template>
+                </el-input-number>
+
+                <el-input-number v-model="form.feeCulture" style="width: 230px;margin-top: 10px;" :min="0" controls-position="right">
+                  <template #prefix>
+                    <span>E.购买文创产品</span>
+                  </template>
+                  <template #suffix>
+                    <span>元</span>
+                  </template>
+                </el-input-number>
+
+                <el-input-number v-model="form.feeArt" style="width: 230px;margin-top: 10px;" :min="0" controls-position="right">
+                  <template #prefix>
+                    <span>F.文化艺术/娱乐</span>
+                  </template>
+                  <template #suffix>
+                    <span>元</span>
+                  </template>
+                </el-input-number>
+
+                <el-input-number v-model="form.feeMedical" style="width: 230px;margin-top: 10px;" :min="0" controls-position="right">
+                  <template #prefix>
+                    <span>G.医疗康养</span>
+                  </template>
+                  <template #suffix>
+                    <span>元</span>
+                  </template>
+                </el-input-number>
+
+                <el-input-number v-model="form.feeCityTrans" style="width: 230px;margin-top: 10px;" :min="0" controls-position="right">
+                  <template #prefix>
+                    <span>H.市内交通</span>
+                  </template>
+                  <template #suffix>
+                    <span>元</span>
+                  </template>
+                </el-input-number>
+
+                <el-input-number v-model="form.feeCityTrans" style="width: 230px;margin-top: 10px;" :min="0" controls-position="right">
+                  <template #prefix>
+                    <span>I.其他</span>
+                  </template>
+                  <template #suffix>
+                    <span>元</span>
+                  </template>
+                </el-input-number>
+              </el-space>
             </el-form-item>
-            <el-form-item label="（3）除上述（1）（2）两项费用之外，截至此时，您本人在我市游览期间支付的费用是:__元。">
-              <el-input v-model="form.otherFee" placeholder="请输入金额" style="width: 180px;" @input="validateNumber" />
-            </el-form-item>
-            <el-form-item label="其中：">
-              <div class="input-single-row">
-                <span class="input-label">A.餐饮</span>
-                <el-input v-model="form.feeFood" placeholder="餐饮" style="width: 180px;" @input="validateNumber" />
-              </div>
-              <div class="input-single-row">
-                <span class="input-label">B.住宿</span>
-                <el-input v-model="form.feeHotel" placeholder="住宿" style="width: 180px;" @input="validateNumber" />
-              </div>
-              <div class="input-single-row">
-                <span class="input-label">C.门票</span>
-                <el-input v-model="form.feeTicket" placeholder="门票" style="width: 180px;" @input="validateNumber" />
-              </div>
-              <div class="input-single-row">
-                <span class="input-label">D.购物</span>
-                <el-input v-model="form.feeShopping" placeholder="购物" style="width: 180px;" @input="validateNumber" />
-              </div>
-              <div class="input-single-row">
-                <span class="input-label">E.文创产品</span>
-                <el-input v-model="form.feeCulture" placeholder="文创产品" style="width: 180px;" @input="validateNumber" />
-              </div>
-              <div class="input-single-row">
-                <span class="input-label">F.文化艺术/娱乐</span>
-                <el-input v-model="form.feeArt" placeholder="文化艺术/娱乐" style="width: 180px;" @input="validateNumber" />
-              </div>
-              <div class="input-single-row">
-                <span class="input-label">G.医疗康养</span>
-                <el-input v-model="form.feeMedical" placeholder="医疗康养" style="width: 180px;" @input="validateNumber" />
-              </div>
-              <div class="input-single-row">
-                <span class="input-label">H.市内交通</span>
-                <el-input v-model="form.feeCityTrans" placeholder="市内交通" style="width: 180px;" @input="validateNumber" />
-              </div>
-              <div class="input-single-row">
-                <span class="input-label">I.其他</span>
-                <el-input v-model="form.feeOther" placeholder="其他" style="width: 180px;" @input="validateNumber" />
-              </div>
-            </el-form-item>
+
             <el-form-item label="11. 您本次出游，在我省（自治区、直辖市）停留期间，共游览了___个市？">
-              <el-input v-model="form.cityCount" placeholder="请输入数量" style="width: 120px;" @input="handleCityCountChange" />
+              <el-input-number v-model="form.cityCount" style="margin-top: 10px;width: 230px;" :min="0" controls-position="right" @input="handleCityCountChange">
+                <template #prefix>
+                  <span>游览城市数量：</span>
+                </template>
+                <template #suffix>
+                  <span>个</span>
+                </template>
+              </el-input-number>
             </el-form-item>
+
             <el-form-item label="分别是">
               <div class="input-row align-bottom">
                 <div class="input-col" v-for="(city, idx) in form.cityList" :key="idx">
@@ -253,7 +384,7 @@ const options = ref({
    options.value.residence = await getOptions(3)//居住地
    options.value.purpose = await getOptions(5)//出行目的
    options.value.stayOvernight = await getOptions(7)//是否过夜
-   options.value.accommodation = await getOptions(12)//
+   options.value.accommodation = await getOptions(9)//住宿类型
    options.value.scenicTypes = await getOptions(10)//景区类型
    options.value.travelMode = await getOptions(11)//游览方式
    options.value.transport = await getOptions(13)//交通工具
@@ -281,6 +412,16 @@ const shouldTerminate = computed(() =>
   form.value.q1 === 'B' || form.value.q2 === 'B' || form.value.q3 === 'A'
 )
 
+const purposeShowInputId = computed(() => {
+  // 找到 showInput 为 true 的选项的 id
+  const opt = options.value.purpose.find(item => item.showInput);
+  return opt ? opt.id : null;
+});
+
+const stayOvernightShowInputId = computed(() => {
+  const opt = options.value.stayOvernight.find(item => item.showInput);
+  return opt ? opt.id : null;
+});
 
 const isFormValid = computed(() => {
   if (!form.value.q1 || !form.value.q2 || !form.value.q3) return false;
@@ -297,20 +438,6 @@ const isFormValid = computed(() => {
   return true;
 });
 
-// 静态题号与label映射
-const staticRequiredMap = [
-  { key: 'address', label: '1. 您目前的常住地' },
-  { key: 'gender', label: '2. 您的性别' },
-  { key: 'age', label: '3. 您的年龄' },
-  { key: 'residence', label: '4. 您日常居住生活的地方' },
-  { key: 'purpose', label: '5. 您本次出游主要目的' },
-  { key: 'stayOvernight', label: '6. 您本次出游是否住宿过夜' },
-  { key: 'scenicTypes', label: '7. 您本次出游游览的景区类型' },
-  { key: 'travelMode', label: '8. 您本次出游来我市游览的方式' },
-  { key: 'transport', label: '9. 您本次出游交通方式' },
-  { key: 'planDays', label: '计划天数' },
-  { key: 'currentDay', label: '第几天' },
-]
 
 const scrollToFirstInvalid = () => {
   nextTick(() => {
@@ -416,23 +543,16 @@ const submit = async () => {
   router.push('/success')
 }
 
-// 数字验证函数
-const validateNumber = (event) => {
-  const value = event.target.value;
-  // 只允许数字和小数点
-  const filtered = value.replace(/[^\d.]/g, '');
-  // 确保只有一个小数点
+const handleNumberInput = (field) => (val) => {
+  let filtered = String(val).replace(/[^\d.]/g, '');
   const parts = filtered.split('.');
-  let validValue;
   if (parts.length > 2) {
-    validValue = parts[0] + '.' + parts.slice(1).join('');
-  } else {
-    validValue = filtered;
+    filtered = parts[0] + '.' + parts.slice(1).join('');
   }
-  if (value !== validValue) {
+  if (filtered !== String(val)) {
     ElMessage.warning('只能输入数字');
   }
-  event.target.value = validValue;
+  form.value[field] = filtered;
 };
 
 const handleCityCountChange = (e) => {
@@ -452,6 +572,13 @@ const handleCityCountChange = (e) => {
 </script>
 
 <style scoped>
+.section-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 24px 0 12px 0;
+  color: #409eff;
+}
+
 .fill-bg {
   min-height: 100vh;
   background: linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%);

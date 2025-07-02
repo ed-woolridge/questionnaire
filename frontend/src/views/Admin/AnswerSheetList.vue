@@ -41,10 +41,10 @@
             </div>
           </template>
           <el-form :model="searchForm" inline>
-            <el-form-item label="问卷ID">
+            <el-form-item label="问卷ID" style="width: 180px;">
               <el-input v-model="searchForm.questionnaireId" placeholder="请输入问卷ID" clearable />
             </el-form-item>
-            <el-form-item label="状态">
+            <el-form-item label="状态" style="width: 150px;">
               <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
                 <el-option label="填写中" value="IN_PROGRESS" />
                 <el-option label="已完成" value="COMPLETED" />
@@ -214,17 +214,17 @@ const stats = reactive({
 const fetchData = async () => {
   loading.value = true
   try {
+    // 先解构出 dateRange，剩下的都传递
+    const { dateRange, ...rest } = searchForm
     const params = {
       page: pagination.page,
       size: pagination.size,
-      ...searchForm
+      ...rest
     }
-    
-    if (searchForm.dateRange && searchForm.dateRange.length === 2) {
-      params.startTime = searchForm.dateRange[0]
-      params.endTime = searchForm.dateRange[1]
+    if (dateRange && dateRange.length === 2) {
+      params.startTime = dateRange[0]
+      params.endTime = dateRange[1]
     }
-    
     const { data } = await getAnswerSheets(params)
     if (data.code === '200') {
       tableData.value = data.data.records

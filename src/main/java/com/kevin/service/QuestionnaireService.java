@@ -1,7 +1,9 @@
 package com.kevin.service;
 
+import com.kevin.common.Result;
 import com.kevin.entity.Questionnaire;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -12,9 +14,9 @@ import java.util.List;
 */
 public interface QuestionnaireService extends IService<Questionnaire> {
 
-    void create(Questionnaire questionnaire);
-    void update(Questionnaire questionnaire);
-    void delete(Long id);
+    Result create(Questionnaire questionnaire);
+    Result update(Questionnaire questionnaire);
+    Result delete(Long id);
     List<Questionnaire> list();
     Questionnaire getById(Long id);
 

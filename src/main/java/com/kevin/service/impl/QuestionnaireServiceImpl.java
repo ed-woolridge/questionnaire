@@ -2,6 +2,7 @@ package com.kevin.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.kevin.common.Result;
 import com.kevin.entity.Questionnaire;
 import com.kevin.service.QuestionnaireService;
 import com.kevin.mapper.QuestionnaireMapper;
@@ -22,18 +23,33 @@ public class QuestionnaireServiceImpl extends ServiceImpl<QuestionnaireMapper, Q
     private QuestionnaireMapper questionnaireMapper;
 
     @Override
-    public void create(Questionnaire questionnaire) {
-        questionnaireMapper.insert(questionnaire);
+    public Result create(Questionnaire questionnaire) {
+        int result = questionnaireMapper.insert(questionnaire);
+        if (result > 0) {
+            return Result.success("问卷创建成功！");
+        } else {
+            return Result.error("问卷创建成功！");
+        }
     }
 
     @Override
-    public void update(Questionnaire questionnaire) {
-        questionnaireMapper.updateById(questionnaire);
+    public Result update(Questionnaire questionnaire) {
+        int i = questionnaireMapper.updateById(questionnaire);
+        if (i > 0) {
+            return Result.success("问卷更新成功！");
+        } else {
+            return Result.error("问卷更新失败！");
+        }
     }
 
     @Override
-    public void delete(Long id) {
-        questionnaireMapper.deleteById(id);
+    public Result delete(Long id) {
+        int i = questionnaireMapper.deleteById(id);
+        if (i > 0) {
+            return Result.success("问卷删除成功！");
+        } else {
+            return Result.error("问卷删除失败！");
+        }
     }
 
     @Override
