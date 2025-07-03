@@ -165,12 +165,10 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { getAnswerSheets, getAnswerSheetDetail, deleteAnswerSheet, batchDeleteAnswerSheets, getAnswerSheetStats } from '@/api'
 
 
-//自定义日期时间范围  (默认当前时期00:00:00)
-const defaultTime = ref<[Date, Date]>([
-  new Date(2000, 1, 1, 0, 0, 0),
-  new Date(2000, 2, 1, 23, 59, 59),
-])
-
+const defaultTime = [
+  new Date(0, 0, 0, 0, 0, 0),
+  new Date(0, 0, 0, 23, 59, 59),
+]
 
 // 响应式数据
 const loading = ref(false)
