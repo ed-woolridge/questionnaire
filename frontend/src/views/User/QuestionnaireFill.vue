@@ -230,7 +230,7 @@
 
                 <el-input-number v-model="form.feeCar" style="width: 200px;margin-top: 10px;" :min="0" controls-position="right">
                   <template #prefix>
-                    <span>E.自驾车或租车</span>
+                    <span>E.自驾/租车</span>
                   </template>
                   <template #suffix>
                     <span>元</span>
@@ -529,7 +529,7 @@ const submit = async () => {
     { questionId: 31, answer: form.value.feeCityTrans },
     { questionId: 32, answer: form.value.feeOther },
     { questionId: 33, answer: form.value.cityCount },
-    { questionId: 34, answer: form.value.cityList }
+    { questionId: 34, answer: form.value.cityList.filter(city => city.trim() !== '').join('，') }
   ];
 
   // 过滤未填写的答案

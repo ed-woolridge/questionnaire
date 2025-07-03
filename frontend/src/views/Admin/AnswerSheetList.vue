@@ -44,13 +44,6 @@
             <el-form-item label="问卷ID" style="width: 180px;">
               <el-input v-model="searchForm.questionnaireId" placeholder="请输入问卷ID" clearable />
             </el-form-item>
-            <el-form-item label="状态" style="width: 150px;">
-              <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
-                <el-option label="填写中" value="IN_PROGRESS" />
-                <el-option label="已完成" value="COMPLETED" />
-                <el-option label="已终止" value="TERMINATED" />
-              </el-select>
-            </el-form-item>
             <el-form-item label="提交时间">
               <el-date-picker
                 v-model="searchForm.dateRange"
@@ -59,7 +52,8 @@
                 start-placeholder="开始日期"
                 end-placeholder="结束日期"
                 format="YYYY-MM-DD"
-                value-format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD HH:mm:ss"
+                :default-time="defaultTime"
               />
             </el-form-item>
             <el-form-item>
@@ -86,13 +80,6 @@
             <el-table-column type="selection" width="55" />
             <el-table-column prop="id" align="center" label="ID" width="50" />
             <el-table-column prop="questionnaireId" align="center" label="问卷ID" width="80" />
-            <el-table-column prop="status" align="center" label="状态" width="100">
-              <template #default="{ row }">
-                <el-tag :type="getStatusType(row.status)">
-                  {{ getStatusText(row.status) }}
-                </el-tag>
-              </template>
-            </el-table-column>
             <el-table-column prop="submitTime" align="center" label="提交时间" width="180">
               <template #default="{ row }">
                 {{ formatDate(row.submitTime) }}
@@ -141,11 +128,6 @@
             <el-descriptions :column="3" border>
               <el-descriptions-item label="答卷ID">{{ detailData.answerSheet.id }}</el-descriptions-item>
               <el-descriptions-item label="问卷ID">{{ detailData.answerSheet.questionnaireId }}</el-descriptions-item>
-              <el-descriptions-item label="状态">
-                <el-tag :type="getStatusType(detailData.answerSheet.status)">
-                  {{ getStatusText(detailData.answerSheet.status) }}
-                </el-tag>
-              </el-descriptions-item>
               <el-descriptions-item label="提交时间">{{ formatDate(detailData.answerSheet.submitTime) }}</el-descriptions-item>
               <el-descriptions-item label="填写时长">{{ detailData.answerSheet.duration }}分钟</el-descriptions-item>
               <el-descriptions-item label="调查员">{{ detailData.answerSheet.surveyorName || '-' }}</el-descriptions-item>
@@ -182,6 +164,14 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getAnswerSheets, getAnswerSheetDetail, deleteAnswerSheet, batchDeleteAnswerSheets, getAnswerSheetStats } from '@/api'
 
+
+//自定义日期时间范围  (默认当前时期00:00:00)
+const defaultTime = ref<[Date, Date]>([
+  new Date(2000, 1, 1, 0, 0, 0),
+  new Date(2000, 2, 1, 23, 59, 59),
+])
+
+
 // 响应式数据
 const loading = ref(false)
 const tableData = ref([])
@@ -195,6 +185,7 @@ const searchForm = reactive({
   status: '',
   dateRange: []
 })
+
 
 // 分页
 const pagination = reactive({
@@ -214,6 +205,7 @@ const stats = reactive({
 const fetchData = async () => {
   loading.value = true
   try {
+
     // 先解构出 dateRange，剩下的都传递
     const { dateRange, ...rest } = searchForm
     const params = {
@@ -350,41 +342,13 @@ const handleCloseDetail = () => {
 }
 
 // 工具函数
-const getStatusType = (status) => {
-  const statusMap = {
-    'IN_PROGRESS': 'warning',
-    'COMPLETED': 'success',
-    'TERMINATED': 'danger'
-  }
-  return statusMap[status] || 'info'
-}
 
-const getStatusText = (status) => {
-  const statusMap = {
-    'IN_PROGRESS': '填写中',
-    'COMPLETED': '已完成',
-    'TERMINATED': '已终止'
-  }
-  return statusMap[status] || status
-}
 
 const formatDate = (date) => {
   if (!date) return '-'
   return new Date(date).toLocaleString()
 }
 
-const formatAnswer = (answer, question) => {
-  if (answer.textAnswer) {
-    return answer.textAnswer
-  }
-  if (answer.numberAnswer) {
-    return answer.numberAnswer.toString()
-  }
-  if (answer.optionId) {
-    return `选项ID: ${answer.optionId}`
-  }
-  return '-'
-}
 
 // 初始化
 onMounted(() => {

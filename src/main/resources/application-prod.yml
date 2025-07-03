@@ -29,15 +29,16 @@ logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
-# Swagger配置
+# Swagger配置 生产环境禁止访问
 springdoc:
   swagger-ui:
     path: /swagger-ui
     tags-sorter: alpha
     operations-sorter: alpha
-    enabled: true
+    enabled: false
   api-docs:
     path: /v3/api-docs
+    enabled: false
   packages-to-scan: com.kevin.controller
 
 # 短信配置（预留）

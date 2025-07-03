@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.kevin.entity.SmsCode;
 import com.kevin.mapper.SmsCodeMapper;
 import com.kevin.service.SmsService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Date;
@@ -13,6 +14,7 @@ import java.util.Random;
  * 短信服务实现类
  */
 @Service
+@Slf4j
 public class SmsServiceImpl implements SmsService {
 
     @Autowired
@@ -62,7 +64,7 @@ public class SmsServiceImpl implements SmsService {
             
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info("发送验证码失败：" + e.getMessage());
             return false;
         }
     }
@@ -88,7 +90,7 @@ public class SmsServiceImpl implements SmsService {
             }
             return false;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info("验证码验证失败：" + e.getMessage());
             return false;
         }
     }

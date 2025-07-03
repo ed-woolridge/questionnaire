@@ -136,6 +136,7 @@ public class AdminController {
     }
 
     private static QueryWrapper<AnswerSheet> getAnswerSheetQueryWrapper(Long questionnaireId, String status, String startTime) {
+
         QueryWrapper<AnswerSheet> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("is_deleted", 0);
 
@@ -251,9 +252,7 @@ public class AdminController {
             for (Long id : ids) {
                 AnswerSheet answerSheet = answerSheetService.getById(id);
                 if (answerSheet != null) {
-                    // 软删除答卷
-                    answerSheet.setIsDeleted(1);
-                    answerSheetService.updateById(answerSheet);
+                    answerSheetService.removeById(answerSheet);
                     
                     // 软删除相关答案
                     QueryWrapper<Answer> answerQuery = new QueryWrapper<>();
@@ -261,8 +260,7 @@ public class AdminController {
                     List<Answer> answers = answerService.list(answerQuery);
                     
                     for (Answer answer : answers) {
-                        answer.setIsDeleted(1);
-                        answerService.updateById(answer);
+                        answerService.removeById(answer);
                     }
                 }
             }

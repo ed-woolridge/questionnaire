@@ -8,7 +8,6 @@ import QuestionnaireStats from '@/views/Admin/QuestionnaireStats.vue'
 import QuestionManage from '@/views/Admin/QuestionManage.vue'
 import NotFound from '@/views/NotFound.vue'
 import { isLoggedIn } from '@/utils/auth'
-import component from 'element-plus/es/components/tree-select/src/tree-select-option.mjs'
 import Unauthorized from '../views/Unauthorized.vue'
 
 const routes = [
