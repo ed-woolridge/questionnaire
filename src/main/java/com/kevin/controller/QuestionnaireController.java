@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/questionnaire")
+@RequestMapping("/api/admin/questionnaire")
 @Tag(name = "问卷管理", description = "问卷的增删改查等管理接口")
 public class QuestionnaireController {
 

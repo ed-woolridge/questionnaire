@@ -4,11 +4,6 @@
       <el-card class="main-card">
         <div class="page-header">
           <h2>用户提交问卷管理</h2>
-          <div class="header-actions">
-            <el-button type="danger" @click="batchDelete" :disabled="selectedIds.length === 0">
-              批量删除
-            </el-button>
-          </div>
         </div>
 
         <!-- 统计卡片 -->
@@ -63,11 +58,19 @@
           </el-form>
         </el-card>
 
+        <el-card>
+          <div class="table-header">
+            <div class="table-title">答卷管理</div>
+              <div class="table-actions">
+                <el-button type="success" class="export-btn" @click="exportAllAnswers">导出全部答卷</el-button>
+                <el-button type="danger" @click="batchDelete" :disabled="selectedIds.length === 0">批量删除</el-button>
+              </div>
+          </div>
         <!-- 数据表格 -->
         <el-card class="table-card">
           <template #header>
             <div class="card-header">
-              <span>问卷列表</span>
+              <span>答卷列表</span>
               <span class="table-info">共 {{ pagination.total }} 条记录</span>
             </div>
           </template>
@@ -112,6 +115,7 @@
               @current-change="handleCurrentChange"
             />
           </div>
+        </el-card>
         </el-card>
       </el-card>
 
@@ -198,6 +202,11 @@ const stats = reactive({
   todayCount: 0,
   completedCount: 0
 })
+
+// 导出全部问卷
+const exportAllAnswers = () => {
+  window.open('/api/admin/answers/export')
+}
 
 // 获取数据
 const fetchData = async () => {
@@ -356,6 +365,25 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/*答卷列表样式 */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ebeef5;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+.table-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #303133;
+}
+.table-actions .el-button {
+  margin-left: 10px;
+}
+
+
 .answer-sheet-list {
   padding: 20px;
 }
@@ -437,6 +465,7 @@ onMounted(() => {
 }
 
 .table-card {
+  margin-top: 20px;
   margin-bottom: 20px;
   border: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);

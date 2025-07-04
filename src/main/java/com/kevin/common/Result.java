@@ -12,7 +12,7 @@ import lombok.Getter;
 public class Result {
 
     public final static String SUCCESS_CODE = "200";
-    public final static String SYS_ERROR_CODE = "500";
+    public final static String SYS_ERROR_CODE = "406";
     public final static String UNAUTHORIZED_CODE = "401";
 
     private final String code;

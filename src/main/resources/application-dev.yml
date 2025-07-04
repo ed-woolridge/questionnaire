@@ -47,3 +47,9 @@ springdoc:
 #  access-key-secret: your-access-key-secret
 #  sign-name: 问卷系统
 #  template-code: SMS_123456789
+
+# JWT配置 token
+jwt:
+  secretKey: UEVX3h8PCvvorgHEkKcHqzSWRTqEH2F+BRUkm5aPhZ4=
+  # token过期时间，单位秒 86400=1天
+  expireTime: 60

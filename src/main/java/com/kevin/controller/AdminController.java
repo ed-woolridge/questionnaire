@@ -2,17 +2,11 @@ package com.kevin.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.kevin.common.JwtUtil;
 import com.kevin.common.Result;
-import com.kevin.entity.Admin;
-import com.kevin.entity.Answer;
-import com.kevin.entity.AnswerSheet;
-import com.kevin.entity.Question;
-import com.kevin.entity.QuestionOption;
-import com.kevin.service.AdminService;
-import com.kevin.service.AnswerService;
-import com.kevin.service.AnswerSheetService;
-import com.kevin.service.QuestionService;
-import com.kevin.service.QuestionOptionService;
+import com.kevin.entity.*;
+import com.kevin.service.*;
+import com.kevin.vo.AdminVo;
 import com.kevin.vo.LoginVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -33,6 +27,10 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/admin")
 @Tag(name = "管理员管理", description = "管理员登录、信息管理等相关接口")
 public class AdminController {
+
+    //注入JWT工具类
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Autowired
     private AdminService adminService;
@@ -58,12 +56,25 @@ public class AdminController {
         try {
             Admin admin = adminService.login(loginVo.getUsername(), loginVo.getPassword());
             if (admin != null) {
-                return Result.success(admin);
+
+                // 生成token
+                String token = jwtUtil.generateToken(admin.getId(), admin.getUsername());
+
+                // 组装只返回必要信息
+                AdminVo adminVo = new AdminVo();
+
+                adminVo.setId(admin.getId());
+                adminVo.setUsername(admin.getUsername());
+                adminVo.setRealName(admin.getRealName());
+                adminVo.setStatus(admin.getStatus());
+                adminVo.setToken(token);
+
+                return Result.success(adminVo);
             } else {
                 return Result.error("用户名或密码错误");
             }
         } catch (Exception e) {
-            return Result.error("登录失败：" + e.getMessage());
+            return Result.error("登录失败!" );
         }
     }
 
@@ -79,10 +90,10 @@ public class AdminController {
             if (admin != null) {
                 return Result.success(admin);
             } else {
-                return Result.error("管理员不存在");
+                return Result.error("管理员不存在!");
             }
         } catch (Exception e) {
-            return Result.error("获取信息失败：" + e.getMessage());
+            return Result.error("未能获取到管理员信息！");
         }
     }
 
@@ -98,12 +109,12 @@ public class AdminController {
         try {
             boolean success = adminService.changePassword(adminId, oldPassword, newPassword);
             if (success) {
-                return Result.success("密码修改成功");
+                return Result.success("密码修改成功！");
             } else {
-                return Result.error("原密码错误");
+                return Result.error("原密码错误！");
             }
         } catch (Exception e) {
-            return Result.error("密码修改失败：" + e.getMessage());
+            return Result.error("密码修改失败！");
         }
     }
 
@@ -131,7 +142,7 @@ public class AdminController {
             Page<AnswerSheet> result = answerSheetService.page(pageParam, queryWrapper);
             return Result.success(result);
         } catch (Exception e) {
-            return Result.error("查询失败：" + e.getMessage());
+            return Result.error("查询问卷信息失败！");
         }
     }
 
@@ -204,7 +215,7 @@ public class AdminController {
             result.put("answers", answerDetails);
             return Result.success(result);
         } catch (Exception e) {
-            return Result.error("获取详情失败：" + e.getMessage());
+            return Result.error("获取问卷详情失败！");
         }
     }
 
@@ -328,12 +339,15 @@ public class AdminController {
         List<Question> questions = questionService.listByQuestionnaireId(questionnaireId)
             .stream()
             .filter(q -> "SINGLE_CHOICE".equals(q.getType()) || "MULTIPLE_CHOICE".equals(q.getType()))
-            .collect(Collectors.toList());
+            .toList();
 
         List<Map<String, Object>> result = new ArrayList<>();
+
         for (Question q : questions) {
+
             // 2. 查询该题所有选项
             List<QuestionOption> options = questionOptionService.listByQuestionId(q.getId());
+
             // 3. 查询该题所有答案
             List<Answer> answers = answerService.list(
                 new QueryWrapper<Answer>().eq("question_id", q.getId()).eq("is_deleted", 0)

@@ -6,7 +6,6 @@
           <h2>问卷管理</h2>
           <div class="header-actions">
             <el-button type="primary" class="add-btn" @click="openEditDialog()">新建问卷</el-button>
-            <el-button type="success" class="export-btn" @click="exportAllAnswers">导出全部问卷</el-button>
           </div>
         </div>
         <el-card class="table-card">
@@ -205,7 +204,6 @@ const fetchQuestionnaireList = async () => {
     const response = await getQuestionnaireList()
     if (response.data && response.data.code === '200') {
       tableData.value = response.data.data || []
-      console.log('赋值后的 tableData:', tableData.value)
     } else {
       ElMessage.error(response.data?.message || '获取问卷列表失败')
     }
@@ -243,11 +241,6 @@ const handleDelete = async (row) => {
       ElMessage.error('删除失败，请重试')
     }
   }
-}
-
-// 导出全部问卷
-const exportAllAnswers = () => {
-  window.open('/api/admin/answers/export')
 }
 
 // 格式化日期

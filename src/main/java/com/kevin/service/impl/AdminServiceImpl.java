@@ -20,11 +20,12 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public Admin login(String username, String password) {
+
         QueryWrapper<Admin> queryWrapper = new QueryWrapper<>();
+
         queryWrapper.eq("username", username);
-        queryWrapper.eq("status", "ACTIVE");
         queryWrapper.eq("is_deleted", 0);
-        
+
         Admin admin = adminMapper.selectOne(queryWrapper);
         if (admin != null) {
             // 验证密码（这里使用MD5加密，实际项目中建议使用更安全的加密方式）

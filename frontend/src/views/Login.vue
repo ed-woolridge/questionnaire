@@ -13,12 +13,12 @@
         </svg>
       </div>
       <div class="login-title">管理员登录</div>
-      <el-form :model="form" class="login-form" label-position="top">
-        <el-form-item label="用户名">
-          <el-input v-model="form.username" placeholder="请输入用户名" size="large" />
+      <el-form :model="form" :rules="rules" ref="loginFormRef" class="login-form" label-position="top">
+        <el-form-item label="用户名" prpo="username">
+          <el-input v-model="form.username" placeholder="请输入用户名" />
         </el-form-item>
-        <el-form-item label="密码">
-          <el-input v-model="form.password" placeholder="请输入密码" size="large" show-password />
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="form.password" placeholder="请输入密码" show-password />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" class="login-btn" @click="login">登录</el-button>
@@ -33,24 +33,33 @@ import { ref } from 'vue'
 import { login as apiLogin } from '@/api'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { setAuth } from '@/utils/auth'
 
 const router = useRouter()
 const form = ref({ username: '', password: '' })
+const loginFormRef = ref()
+const rules = {
+  username: [{ required: true, message: '用户名不能为空', trigger: 'blur' }],
+  password: [{ required: true, message: '密码不能为空', trigger: 'blur' }]
+}
 
+//登录表单校验
 const login = async () => {
-  try {
-    const { data } = await apiLogin(form.value)
-    if (data.code === '200') {
-      setAuth(data.data)
-      ElMessage.success('登录成功')
-      router.push('/admin/questionnaires')
-    } else {
-      ElMessage.error(data.message || '登录失败')
+  loginFormRef.value.validate(async (valid) => {
+    if (!valid) return
+    try {
+      const { data } = await apiLogin(form.value)
+      if (data.code === '200') {
+        localStorage.setItem('admin', JSON.stringify(data.data))
+        ElMessage.success('登录成功')
+        router.push('/admin/questionnaires')
+      } else {
+        ElMessage.error(data.message || '登录失败')
+      }
+    } catch (error) {
+      const msg = error.response?.data?.message || error.message || '登录失败，请检查网络连接'
+      ElMessage.error(msg)
     }
-  } catch (error) {
-    ElMessage.error('登录失败，请检查网络连接')
-  }
+  })
 }
 </script>
 
@@ -110,9 +119,10 @@ const login = async () => {
 }
 .login-btn {
   width: 100%;
+  margin-top: 10px;
   font-size: 18px;
   height: 44px;
-  border-radius: 22px;
+  border-radius: 10px;
   letter-spacing: 2px;
 }
 @media (max-width: 600px) {

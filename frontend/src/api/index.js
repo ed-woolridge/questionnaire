@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 
 export const login = (data) => request.post('/api/admin/login', data)
-export const getQuestionnaireList = () => request.get('/admin/questionnaire/list')
+export const getQuestionnaireList = () => request.get('/api/admin/questionnaire/list')
 export const createQuestionnaire = (data) => request.post('/admin/questionnaire/create', data)
 export const updateQuestionnaire = (data) => request.put('/admin/questionnaire/update', data)
 export const deleteQuestionnaire = (id) => request.delete(`/admin/questionnaire/delete/${id}`)
